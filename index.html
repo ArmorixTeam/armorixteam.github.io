@@ -1,247 +1,325 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Parallax</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Parallax Executor</title>
 
-<!-- Inter Font -->
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
 <style>
+/* =========================
+   THEME
+========================= */
 :root {
-  --bg: #0b0b0f;
-  --panel: #12121a;
-  --text: #ffffff;
-  --muted: #a0a0b8;
-  --purple: #8b5cf6;
-  --purple-soft: rgba(139,92,246,0.35);
+  --bg: #07070c;
+  --panel: rgba(18,18,30,0.75);
+  --panel-solid: #12121e;
   --border: rgba(255,255,255,0.08);
+  --text: #ffffff;
+  --muted: #9aa0b4;
+  --purple: #8b5cf6;
+  --purple-2: #a78bfa;
+  --cyan: #22d3ee;
+  --danger: #ef4444;
+  --glow: 0 0 24px rgba(139,92,246,.35);
 }
 
+/* =========================
+   GLOBAL
+========================= */
 * {
   box-sizing: border-box;
-  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: Inter, system-ui, -apple-system;
 }
 
 html, body {
   margin: 0;
-  padding: 0;
-  background: radial-gradient(1200px 600px at top, #141428, var(--bg));
+  background: radial-gradient(1200px 600px at top, #101028, var(--bg));
   color: var(--text);
   height: 100%;
+  overflow: hidden;
 }
 
-body {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(12px); }
+  to { opacity:1; transform:none; }
 }
 
-/* Fade in */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
+/* =========================
+   APP LAYOUT
+========================= */
 .app {
   width: 100%;
   height: 100svh;
-  max-width: 1200px;
-  display: flex;
-  animation: fadeIn 0.5s ease;
+  display: grid;
+  grid-template-columns: 72px 1fr;
+  animation: fadeUp .5s ease;
 }
 
-/* Sidebar */
+/* =========================
+   SIDEBAR
+========================= */
 .sidebar {
-  width: 64px;
-  background: linear-gradient(180deg, #0f0f18, #0b0b0f);
+  background: linear-gradient(180deg, #0b0b15, #08080d);
   border-right: 1px solid var(--border);
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 12px 0;
-  gap: 14px;
+  padding: 14px 0;
+  gap: 12px;
 }
 
-.sidebar button {
-  width: 42px;
-  height: 42px;
-  border-radius: 12px;
-  background: transparent;
-  border: none;
-  color: var(--muted);
+.logo {
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: var(--purple);
+  margin-bottom: 10px;
+}
+
+.nav-btn {
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
   display: grid;
   place-items: center;
+  color: var(--muted);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: .2s;
 }
 
-.sidebar button.active,
-.sidebar button:hover {
-  background: var(--panel);
+.nav-btn:hover,
+.nav-btn.active {
+  background: rgba(139,92,246,.12);
   color: var(--purple);
-  box-shadow: 0 0 0 1px var(--border), 0 0 12px var(--purple-soft);
+  box-shadow: var(--glow);
 }
 
-/* Main */
+/* =========================
+   MAIN
+========================= */
 .main {
-  flex: 1;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  height: 100%;
 }
 
-/* Header */
+/* =========================
+   HEADER
+========================= */
 .header {
-  padding: 16px 20px;
-  font-size: 20px;
-  font-weight: 600;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 18px;
   border-bottom: 1px solid var(--border);
-  background: linear-gradient(90deg, rgba(139,92,246,0.12), transparent);
+  background: linear-gradient(90deg, rgba(139,92,246,.12), transparent);
 }
 
-/* Panels */
-.panel {
+.header .title {
+  font-weight: 700;
+  letter-spacing: .4px;
+}
+
+.stats {
+  display: flex;
+  gap: 16px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* =========================
+   CONTENT
+========================= */
+.content {
   flex: 1;
+  position: relative;
+}
+
+.panel {
+  position: absolute;
+  inset: 0;
   display: none;
-  animation: fadeIn 0.3s ease;
+  padding: 16px;
 }
 
 .panel.active {
   display: flex;
+  animation: fadeUp .25s ease;
 }
 
-/* Disclaimer */
+/* =========================
+   DISCLAIMER
+========================= */
 .disclaimer {
-  align-items: center;
   justify-content: center;
+  align-items: center;
   flex-direction: column;
+  gap: 18px;
   text-align: center;
-  gap: 16px;
 }
 
-.triangle {
-  width: 90px;
-  height: 90px;
-  filter: drop-shadow(0 0 16px var(--purple-soft));
-}
-
-.disclaimer h2 {
-  margin: 0;
-}
-
-.disclaimer p {
-  max-width: 360px;
-  color: var(--muted);
+.disclaimer .warn {
+  width: 96px;
+  height: 96px;
+  filter: drop-shadow(var(--glow));
 }
 
 .disclaimer button {
-  margin-top: 10px;
-  padding: 12px 22px;
-  border-radius: 14px;
+  padding: 12px 26px;
+  border-radius: 16px;
   border: none;
-  background: linear-gradient(135deg, var(--purple), #6d28d9);
-  color: white;
   font-weight: 600;
-  cursor: pointer;
+  background: linear-gradient(135deg,var(--purple),var(--purple-2));
+  color: white;
 }
 
-/* Editor */
-.editor-container {
+/* =========================
+   EDITOR
+========================= */
+.editor-wrap {
   flex: 1;
   display: flex;
-  padding: 16px;
   gap: 16px;
 }
 
 .editor {
   flex: 1;
   background: var(--panel);
-  border-radius: 16px;
+  backdrop-filter: blur(18px);
   border: 1px solid var(--border);
-  padding: 14px;
-  font-family: monospace;
-  color: #e5e7eb;
+  border-radius: 18px;
+  padding: 16px;
+  font-family: ui-monospace, SFMono-Regular;
   outline: none;
   overflow: auto;
   white-space: pre;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.02);
 }
 
-.keyword { color: #8b5cf6; }
-.string { color: #34d399; }
-.comment { color: #6b7280; }
-
-/* ScriptBlox */
+/* =========================
+   SCRIPTBLOX
+========================= */
 .scriptblox {
-  padding: 16px;
-  overflow-y: auto;
-}
-
-.script {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 14px;
-  margin-bottom: 12px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.script:hover {
-  box-shadow: 0 0 0 1px var(--purple-soft);
-}
-
-/* Settings */
-.settings {
-  padding: 20px;
   display: flex;
   flex-direction: column;
   gap: 14px;
+  width: 100%;
 }
 
-.toggle {
-  display: flex;
-  justify-content: space-between;
-  background: var(--panel);
-  border-radius: 14px;
-  padding: 14px;
-  border: 1px solid var(--border);
-}
-
-.switch {
-  width: 44px;
-  height: 24px;
-  border-radius: 999px;
-  background: #1f2933;
-  position: relative;
-}
-
-.switch::after {
-  content: "";
-  position: absolute;
-  width: 18px;
-  height: 18px;
-  background: white;
-  border-radius: 50%;
-  top: 3px;
-  left: 3px;
-}
-
-/* Execute Buttons */
-.execute-bar {
-  position: absolute;
-  bottom: 18px;
-  right: 18px;
+.sb-search {
   display: flex;
   gap: 10px;
 }
 
-.exec-btn {
-  width: 48px;
-  height: 48px;
+.sb-search input {
+  flex: 1;
+  background: var(--panel-solid);
+  border: 1px solid var(--border);
   border-radius: 14px;
+  padding: 12px;
+  color: white;
+}
+
+.sb-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill,minmax(220px,1fr));
+  gap: 14px;
+}
+
+.script-card {
   background: var(--panel);
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: .25s;
+}
+
+.script-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--glow);
+}
+
+.script-thumb {
+  height: 120px;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.script-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.script-info {
+  padding: 12px;
+}
+
+.script-info b {
+  font-size: 14px;
+}
+
+.script-info small {
+  color: var(--muted);
+}
+
+/* =========================
+   SETTINGS
+========================= */
+.settings {
+  gap: 14px;
+  flex-direction: column;
+}
+
+.setting {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.switch {
+  width: 48px;
+  height: 26px;
+  background: #1f1f2e;
+  border-radius: 999px;
+  position: relative;
+}
+
+.switch::after {
+  content:"";
+  position:absolute;
+  width:20px;
+  height:20px;
+  border-radius:50%;
+  background:white;
+  top:3px;
+  left:3px;
+}
+
+/* =========================
+   EXEC BAR
+========================= */
+.exec-bar {
+  position: absolute;
+  right: 18px;
+  bottom: 18px;
+  display: flex;
+  gap: 12px;
+}
+
+.exec-btn {
+  width: 54px;
+  height: 54px;
+  border-radius: 18px;
+  background: linear-gradient(135deg,#12122a,#0b0b14);
   border: 1px solid var(--border);
   display: grid;
   place-items: center;
@@ -249,7 +327,7 @@ body {
 }
 
 .exec-btn:hover {
-  box-shadow: 0 0 16px var(--purple-soft);
+  box-shadow: var(--glow);
 }
 </style>
 </head>
@@ -257,112 +335,139 @@ body {
 <body>
 <div class="app">
 
-  <!-- Sidebar -->
+  <!-- SIDEBAR -->
   <div class="sidebar">
-    <button class="active" onclick="showPanel('editor')">✏️</button>
-    <button onclick="showPanel('scriptblox')">☁️</button>
-    <button onclick="showPanel('saved')">📁</button>
-    <button onclick="showPanel('settings')">⚙️</button>
+    <div class="logo">PX</div>
+    <div class="nav-btn active" onclick="openPanel('editor')">✏️</div>
+    <div class="nav-btn" onclick="openPanel('scriptblox')">☁️</div>
+    <div class="nav-btn" onclick="openPanel('settings')">⚙️</div>
   </div>
 
-  <!-- Main -->
+  <!-- MAIN -->
   <div class="main">
-    <div class="header">Parallax</div>
-
-    <!-- Disclaimer -->
-    <div class="panel active disclaimer" id="disclaimer">
-      <svg class="triangle" viewBox="0 0 24 24" fill="none" stroke="purple" stroke-width="1.5">
-        <path d="M12 2L22 20H2L12 2Z"/>
-      </svg>
-      <h2>Disclaimer</h2>
-      <p>
-        Use at your own risk.<br>
-        Parallax is not responsible for any bans or disciplinary action caused.
-      </p>
-      <button onclick="dismissDisclaimer()">Continue</button>
-    </div>
-
-    <!-- Editor -->
-    <div class="panel" id="editor">
-      <div class="editor-container">
-        <div class="editor" contenteditable spellcheck="false" oninput="highlight(this)">
--- Parallax Executor
-print("Hello World")
-        </div>
+    <div class="header">
+      <div class="title">Parallax</div>
+      <div class="stats">
+        <span>FPS: 60</span>
+        <span>Injection: Stable</span>
+        <span>Identity: 8</span>
       </div>
     </div>
 
-    <!-- ScriptBlox -->
-    <div class="panel scriptblox" id="scriptblox"></div>
+    <div class="content">
 
-    <!-- Saved -->
-    <div class="panel" id="saved" style="padding:20px;color:var(--muted)">
-      Saved Scripts (placeholder)
+      <!-- DISCLAIMER -->
+      <div class="panel active disclaimer" id="disclaimer">
+        <svg class="warn" viewBox="0 0 24 24" fill="none" stroke="purple" stroke-width="1.5">
+          <path d="M12 2L22 20H2L12 2Z"/>
+        </svg>
+        <h2>Disclaimer</h2>
+        <p style="color:var(--muted);max-width:420px">
+          Use at your own risk. Parallax is not responsible for bans,
+          terminations, or disciplinary actions.
+        </p>
+        <button onclick="dismissDisclaimer()">Continue</button>
+      </div>
+
+      <!-- EDITOR -->
+      <div class="panel" id="editor">
+        <div class="editor-wrap">
+          <div class="editor" contenteditable spellcheck="false">
+-- Parallax Executor
+print("Ready.")
+          </div>
+        </div>
+      </div>
+
+      <!-- SCRIPTBLOX -->
+      <div class="panel scriptblox" id="scriptblox">
+        <div class="sb-search">
+          <input id="sbSearch" placeholder="Search ScriptBlox..." />
+          <button onclick="searchScripts()">Search</button>
+        </div>
+        <div class="sb-grid" id="sbGrid"></div>
+      </div>
+
+      <!-- SETTINGS -->
+      <div class="panel settings" id="settings">
+        <div class="setting"><span>Robux Purchases</span><div class="switch"></div></div>
+        <div class="setting"><span>Script Anti-Scam</span><div class="switch"></div></div>
+        <div class="setting"><span>Verify Teleports</span><div class="switch"></div></div>
+        <div class="setting"><span>Anti Kick</span><div class="switch"></div></div>
+      </div>
+
+      <!-- EXEC -->
+      <div class="exec-bar">
+        <div class="exec-btn">▶️</div>
+        <div class="exec-btn">🧹</div>
+      </div>
+
     </div>
-
-    <!-- Settings -->
-    <div class="panel settings" id="settings">
-      <div class="toggle"><span>Robux Purchases</span><div class="switch"></div></div>
-      <div class="toggle"><span>Script Anti-Scam</span><div class="switch"></div></div>
-      <div class="toggle"><span>Verify Teleports</span><div class="switch"></div></div>
-      <div class="toggle"><span>Anti Kick</span><div class="switch"></div></div>
-    </div>
-
-    <!-- Fake Execute Buttons -->
-    <div class="execute-bar">
-      <div class="exec-btn">▶️</div>
-      <div class="exec-btn">🗑️</div>
-    </div>
-
   </div>
 </div>
 
 <script>
-function showPanel(id) {
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+let currentPage = 1;
+
+function openPanel(id) {
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
   document.getElementById(id).classList.add('active');
-  document.querySelectorAll('.sidebar button').forEach(b => b.classList.remove('active'));
 }
 
 function dismissDisclaimer() {
-  document.getElementById('disclaimer').style.display = 'none';
-  showPanel('editor');
+  document.getElementById('disclaimer').style.display='none';
+  openPanel('editor');
 }
 
-function highlight(el) {
-  let text = el.innerText
-    .replace(/(print|function|end|local)/g, '<span class="keyword">$1</span>')
-    .replace(/(".*?")/g, '<span class="string">$1</span>')
-    .replace(/(--.*)/g, '<span class="comment">$1</span>');
-  el.innerHTML = text;
-  placeCaretAtEnd(el);
-}
+/* =========================
+   SCRIPTBLOX + IMAGE CACHE
+========================= */
+const imageCache = new Map();
 
-function placeCaretAtEnd(el) {
-  const range = document.createRange();
-  range.selectNodeContents(el);
-  range.collapse(false);
-  const sel = window.getSelection();
-  sel.removeAllRanges();
-  sel.addRange(range);
-}
+async function loadScripts(query="") {
+  const res = await fetch(`https://scriptblox.com/api/script/search?q=${encodeURIComponent(query)}&page=${currentPage}`);
+  const data = await res.json();
+  const grid = document.getElementById("sbGrid");
+  grid.innerHTML = "";
 
-/* ScriptBlox API */
-fetch("https://scriptblox.com/api/script/fetch?page=1")
-  .then(res => res.json())
-  .then(data => {
-    const container = document.getElementById("scriptblox");
-    data.result.scripts.forEach(s => {
-      const div = document.createElement("div");
-      div.className = "script";
-      div.innerHTML = `<strong>${s.title}</strong><br><small>${s.game?.name || "Universal"}</small>`;
-      div.onclick = () => {
-        showPanel('editor');
-        document.querySelector('.editor').innerText = s.script || "-- Unable to load script";
-      };
-      container.appendChild(div);
-    });
+  data.result.scripts.forEach(s => {
+    const card = document.createElement("div");
+    card.className = "script-card";
+
+    const img = document.createElement("img");
+    if (imageCache.has(s.game?.imageUrl)) {
+      img.src = imageCache.get(s.game.imageUrl);
+    } else if (s.game?.imageUrl) {
+      img.src = s.game.imageUrl;
+      imageCache.set(s.game.imageUrl, s.game.imageUrl);
+    }
+
+    card.innerHTML = `
+      <div class="script-thumb"></div>
+      <div class="script-info">
+        <b>${s.title}</b><br>
+        <small>${s.game?.name || "Universal"}</small>
+      </div>
+    `;
+
+    card.querySelector(".script-thumb").appendChild(img);
+
+    card.onclick = async () => {
+      const raw = await fetch(`https://scriptblox.com/api/script/raw/${s._id}`).then(r=>r.text());
+      openPanel("editor");
+      document.querySelector(".editor").innerText = raw;
+    };
+
+    grid.appendChild(card);
   });
+}
+
+function searchScripts() {
+  currentPage = 1;
+  loadScripts(document.getElementById("sbSearch").value);
+}
+
+loadScripts();
 </script>
 </body>
 </html>
