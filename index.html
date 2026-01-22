@@ -1,604 +1,454 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Parallax</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Parallax Executor UI</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
-/* ================= THEME ================= */
 :root{
-  --bg:#05050a;
-  --panel:#0d0d1a;
-  --panel-soft:rgba(20,20,40,.82);
-  --border:rgba(255,255,255,.08);
+  --bg:#0b0b0f;
+  --panel:#111218;
+  --panel-2:#161722;
+  --border:#26283a;
   --text:#ffffff;
-  --muted:#9aa0b4;
-  --purple:#8b5cf6;
-  --glow:0 0 24px rgba(139,92,246,.45);
+  --muted:#9fa3c7;
+  --accent:#7c5cff;
+  --accent-soft:rgba(124,92,255,.25);
 }
 
-*{box-sizing:border-box;font-family:Inter}
-html,body{margin:0;height:100%;background:var(--bg);color:var(--text);overflow:hidden}
+*{box-sizing:border-box}
+html,body{
+  margin:0;
+  width:100%;
+  height:100%;
+  font-family:Inter,system-ui;
+  background:radial-gradient(1200px 600px at top,#14152a,#08080c);
+  color:var(--text);
+  overflow:hidden;
+}
 
-/* ================= LAYOUT ================= */
+/* ===== Layout ===== */
+
 .app{
-  height:100svh;
-  display:grid;
-  grid-template-columns:100px 1fr;
-}
-
-/* ================= SIDEBAR ================= */
-.sidebar{
   display:flex;
-  justify-content:center;
-  align-items:center;
+  height:100%;
+  width:100%;
 }
 
-.nav-wrap{
-  background:linear-gradient(180deg,#0b0b15,#06060c);
+/* Sidebar */
+.sidebar-wrap{
+  padding:20px;
+}
+.sidebar{
+  width:72px;
+  height:100%;
+  background:linear-gradient(180deg,#121321,#0c0d15);
   border:1px solid var(--border);
-  border-radius:26px;
-  padding:14px 12px;
+  border-radius:18px;
   display:flex;
   flex-direction:column;
+  align-items:center;
   gap:14px;
-}
-
-.logo{
-  color:var(--purple);
-  font-weight:800;
-  text-align:center;
+  padding:16px 10px;
+  box-shadow:0 0 40px rgba(124,92,255,.15);
 }
 
 .nav-btn{
-  width:56px;
-  height:56px;
-  border-radius:18px;
-  display:grid;
-  place-items:center;
-  cursor:pointer;
-  color:var(--muted);
-  transition:.25s;
-}
-
-.nav-btn.active,
-.nav-btn:hover{
-  background:rgba(139,92,246,.18);
-  color:var(--purple);
-  box-shadow:var(--glow);
-}
-
-/* ================= MAIN ================= */
-.main{
-  display:flex;
-  flex-direction:column;
-  height:100%;
-}
-
-.header{
-  height:60px;
-  padding:0 22px;
+  width:44px;
+  height:44px;
+  border-radius:12px;
   display:flex;
   align-items:center;
-  border-bottom:1px solid var(--border);
-  font-weight:700;
+  justify-content:center;
+  color:#cdd0ff;
+  cursor:pointer;
+  transition:.25s;
+}
+.nav-btn.active,
+.nav-btn:hover{
+  background:var(--accent-soft);
+  box-shadow:0 0 20px rgba(124,92,255,.6);
+  color:#fff;
 }
 
-.content{
+/* Main */
+.main{
   flex:1;
-  position:relative;
-  overflow:hidden;
+  padding:20px 20px 20px 0;
+  display:flex;
+  flex-direction:column;
+  gap:14px;
 }
 
-/* ================= PANELS ================= */
+/* Header */
+.header{
+  font-size:22px;
+  font-weight:700;
+  letter-spacing:.5px;
+}
+
+/* Panels */
 .panel{
-  position:absolute;
-  inset:0;
+  flex:1;
+  background:linear-gradient(180deg,#131423,#0d0e17);
+  border:1px solid var(--border);
+  border-radius:18px;
   padding:16px;
   display:none;
-}
-
-.panel.active{
-  display:flex;
+  overflow:hidden;
   animation:fade .25s ease;
 }
+.panel.active{display:flex;flex-direction:column}
 
 @keyframes fade{
   from{opacity:0;transform:translateY(6px)}
-  to{opacity:1}
+  to{opacity:1;transform:none}
 }
 
-/* ================= DISCLAIMER ================= */
-#disclaimer{
-  flex-direction:column;
-  justify-content:center;
-  align-items:center;
-  gap:18px;
-  text-align:center;
-}
+/* ===== Script Editor ===== */
 
-#disclaimer button{
-  padding:14px 34px;
-  border-radius:18px;
-  border:none;
-  background:linear-gradient(135deg,var(--purple),#a78bfa);
-  font-weight:700;
-}
-
-/* ================= EDITOR ================= */
-#editor{
-  flex-direction:column;
-  gap:10px;
-}
-
-.tabs{
+.editor-tabs{
   display:flex;
   gap:8px;
-  align-items:center;
-}
-
-.tab{
-  padding:8px 14px;
-  border-radius:12px;
-  background:var(--panel);
-  border:1px solid var(--border);
-  color:var(--muted);
-  cursor:pointer;
-  display:flex;
-  align-items:center;
-  gap:8px;
-}
-
-.tab.active{
-  color:white;
-  box-shadow:var(--glow);
-}
-
-.tab .close{
-  opacity:.5;
-}
-
-.tab .close:hover{
-  opacity:1;
-}
-
-.tab.add{
-  font-weight:800;
-}
-
-/* ===== EDITOR LAYERS (FIXED SCROLL) ===== */
-.editor-wrap{
-  flex:1;
-  position:relative;
-  display:flex;
-  margin-top:12px;
-}
-
-.highlight-layer{
-  position:absolute;
-  inset:0;
-  padding:18px;
-  font-family:ui-monospace;
-  white-space:pre;
-  overflow:auto;
-  pointer-events:none;
-}
-
-.editor-input{
-  position:absolute;
-  inset:0;
-  padding:18px;
-  background:transparent;
-  border:1px solid var(--border);
-  border-radius:22px;
-  color:transparent;
-  caret-color:white;
-  font-family:ui-monospace;
-  white-space:pre;
-  overflow:auto;
-  outline:none;
-  z-index:2;
-}
-
-/* ===== SYNTAX COLORS ===== */
-.kw{color:#c084fc}
-.str{color:#86efac}
-.num{color:#60a5fa}
-.com{color:#6b7280}
-
-/* ================= SCRIPTBLOX ================= */
-#scriptblox{
-  flex-direction:column;
-  gap:12px;
-}
-
-.sb-search{
-  display:flex;
-  gap:10px;
-}
-
-.sb-search input{
-  flex:1;
-  padding:14px;
-  border-radius:16px;
-  background:var(--panel);
-  border:1px solid var(--border);
-  color:white;
-}
-
-.sb-results{
-  flex:1;
-  overflow:auto;
-}
-
-.sb-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
-  gap:14px;
-}
-
-.card{
-  background:var(--panel-soft);
-  border:1px solid var(--border);
-  border-radius:20px;
-  overflow:hidden;
-  cursor:pointer;
-}
-
-.card:hover{
-  box-shadow:var(--glow);
-}
-
-.thumb{
-  height:130px;
-  background:black;
-}
-
-.thumb img{
-  width:100%;
-  height:100%;
-  object-fit:cover;
-}
-
-.card-info{
-  padding:12px;
-}
-
-/* ================= SAVED SCRIPTS ================= */
-#saved{
-  flex-direction:column;
-  gap:12px;
-}
-
-.saved-header{
-  display:flex;
-  justify-content:flex-end;
-}
-
-.add-btn{
-  width:40px;
-  height:40px;
-  border-radius:12px;
-  background:white;
-  color:black;
-  font-size:24px;
-  display:grid;
-  place-items:center;
-  cursor:pointer;
-}
-
-.saved-item{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:12px;
-  border:1px solid var(--border);
-  border-radius:14px;
   margin-bottom:10px;
 }
 
-.saved-actions button{
-  margin-left:8px;
+.tab{
+  background:#1b1d30;
+  padding:6px 12px;
+  border-radius:10px;
+  font-size:13px;
+  cursor:pointer;
+  display:flex;
+  gap:6px;
+  align-items:center;
+}
+.tab.active{background:var(--accent-soft)}
+.tab span{opacity:.7}
+.tab .x{opacity:.5;font-size:12px}
+
+.editor-wrap{
+  position:relative;
+  flex:1;
+  background:#0d0e16;
+  border-radius:14px;
+  border:1px solid var(--border);
+  overflow:hidden;
 }
 
-/* ================= SETTINGS ================= */
-#settings{
+/* editor scrolling FIX */
+.editor-scroll{
+  position:absolute;
+  inset:0;
+  overflow:auto;
+  padding:14px;
+}
+
+/* highlighting overlay */
+.highlight-layer{
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  white-space:pre;
+  font-family:monospace;
+  font-size:14px;
+  line-height:1.5;
+  color:#ffffff; /* FIXED */
+}
+
+textarea{
+  position:relative;
+  background:transparent;
+  color:transparent;
+  caret-color:#fff;
+  width:100%;
+  min-height:100%;
+  resize:none;
+  border:none;
+  outline:none;
+  font-family:monospace;
+  font-size:14px;
+  line-height:1.5;
+}
+
+/* Editor buttons */
+.editor-actions{
+  position:absolute;
+  right:14px;
+  bottom:14px;
+  display:flex;
+  gap:10px;
+}
+.action-btn{
+  width:44px;
+  height:44px;
+  border-radius:14px;
+  background:var(--accent);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  box-shadow:0 0 20px rgba(124,92,255,.6);
+}
+
+/* ===== ScriptBlox ===== */
+
+.search{
+  padding:12px;
+  border-radius:14px;
+  border:1px solid var(--border);
+  background:#0c0d15;
+  color:#fff;
+  margin-bottom:12px;
+}
+
+.results{
+  flex:1;
+  overflow:auto;
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+  gap:12px;
+}
+
+.card{
+  background:#121326;
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:10px;
+  display:flex;
   flex-direction:column;
-  gap:14px;
+  gap:6px;
 }
 
-.setting-card{
+/* ===== Saved Scripts ===== */
+
+.saved-list{
+  flex:1;
+  overflow:auto;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+.saved-item{
+  background:#121326;
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:10px;
   display:flex;
   justify-content:space-between;
   align-items:center;
-  padding:16px;
-  border-radius:18px;
-  border:1px solid var(--border);
-  background:var(--panel-soft);
+}
+.saved-actions button{
+  margin-left:6px;
 }
 
-.setting-card small{
-  color:var(--muted);
-  display:block;
-  margin-top:4px;
-}
+/* ===== Settings ===== */
 
-/* ================= EXEC ================= */
-.exec{
-  position:absolute;
-  right:18px;
-  bottom:18px;
+.setting{
+  padding:14px;
+  border-bottom:1px solid var(--border);
+}
+.setting h4{margin:0 0 4px 0}
+.setting p{margin:0;color:var(--muted);font-size:13px}
+
+/* ===== Modal ===== */
+
+.modal{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.6);
   display:none;
-  gap:14px;
+  align-items:center;
+  justify-content:center;
 }
-
-.exec-btn{
-  width:58px;
-  height:58px;
-  border-radius:20px;
-  background:#0b0b15;
+.modal.active{display:flex}
+.modal-box{
+  background:#101126;
+  border-radius:18px;
+  padding:16px;
+  width:90%;
+  max-width:420px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+.modal-box input,
+.modal-box textarea{
+  background:#0c0d15;
   border:1px solid var(--border);
-  display:grid;
-  place-items:center;
+  border-radius:10px;
+  padding:10px;
+  color:#fff;
 }
 
-.exec-btn:hover{
-  box-shadow:var(--glow);
-}
-
-/* ================= iPAD FIX ================= */
+/* iPad editor lowering */
 @media (min-width:768px){
-  .editor-wrap{
-    margin-top:auto;
-  }
+  .editor-wrap{margin-top:40px}
 }
 </style>
 </head>
 
 <body>
+
 <div class="app">
 
-<!-- SIDEBAR -->
-<div class="sidebar">
-  <div class="nav-wrap">
-    <div class="logo">PX</div>
-    <div class="nav-btn active" data-panel="editor">✏️</div>
-    <div class="nav-btn" data-panel="scriptblox">☁️</div>
-    <div class="nav-btn" data-panel="saved">💾</div>
-    <div class="nav-btn" data-panel="settings">⚙️</div>
-  </div>
-</div>
-
-<!-- MAIN -->
-<div class="main">
-<div class="header">Parallax</div>
-<div class="content">
-
-<div class="panel active" id="disclaimer">
-  <h2>Disclaimer</h2>
-  <p style="color:var(--muted)">Use at your own risk.</p>
-  <button onclick="dismiss()">Continue</button>
-</div>
-
-<div class="panel" id="editor">
-  <div class="tabs" id="tabs"></div>
-
-  <div class="editor-wrap">
-    <pre class="highlight-layer" id="highlight"></pre>
-    <textarea class="editor-input" id="editorInput" spellcheck="false"></textarea>
-  </div>
-</div>
-
-<div class="panel" id="scriptblox">
-  <div class="sb-search">
-    <input id="search" placeholder="Search ScriptBlox">
-    <button onclick="search()">Search</button>
-  </div>
-  <div class="sb-results">
-    <div class="sb-grid" id="grid"></div>
-  </div>
-</div>
-
-<div class="panel" id="saved">
-  <div class="saved-header">
-    <div class="add-btn" onclick="addSaved()">+</div>
-  </div>
-  <div id="savedList"></div>
-</div>
-
-<div class="panel" id="settings">
-  <div class="setting-card">
-    <div>
-      <b>Luau Highlighting</b>
-      <small>Enhances Luau readability with syntax coloring.</small>
+  <div class="sidebar-wrap">
+    <div class="sidebar">
+      <div class="nav-btn active" data-panel="editor">✎</div>
+      <div class="nav-btn" data-panel="blox">☁</div>
+      <div class="nav-btn" data-panel="saved">★</div>
+      <div class="nav-btn" data-panel="settings">⚙</div>
     </div>
-    <input type="checkbox" checked disabled>
   </div>
-  <div class="setting-card">
-    <div>
-      <b>Script Anti-Scam</b>
-      <small>Detects suspicious script patterns.</small>
+
+  <div class="main">
+    <div class="header">Parallax</div>
+
+    <!-- Editor -->
+    <div class="panel active" id="editor">
+      <div class="editor-tabs">
+        <div class="tab active">Script 1 <span class="x">×</span></div>
+        <div class="tab">+</div>
+      </div>
+
+      <div class="editor-wrap">
+        <div class="editor-scroll">
+          <pre class="highlight-layer" id="hl"></pre>
+          <textarea id="code">// Parallax Executor
+print("Hello world")</textarea>
+        </div>
+
+        <div class="editor-actions">
+          <div class="action-btn">▶</div>
+          <div class="action-btn">🗑</div>
+        </div>
+      </div>
     </div>
-    <input type="checkbox">
+
+    <!-- ScriptBlox -->
+    <div class="panel" id="blox">
+      <input class="search" id="search" placeholder="Search ScriptBlox"/>
+      <div class="results" id="results"></div>
+    </div>
+
+    <!-- Saved -->
+    <div class="panel" id="saved">
+      <div style="text-align:right;margin-bottom:10px">
+        <button onclick="openModal()">＋</button>
+      </div>
+      <div class="saved-list" id="savedList"></div>
+    </div>
+
+    <!-- Settings -->
+    <div class="panel" id="settings">
+      <div class="setting">
+        <h4>Robux Purchases</h4>
+        <p>Warns before scripts attempt Robux interactions.</p>
+      </div>
+      <div class="setting">
+        <h4>Script Anti-Scam</h4>
+        <p>Detects common malicious Luau patterns.</p>
+      </div>
+      <div class="setting">
+        <h4>Verify Teleports</h4>
+        <p>Confirms script-triggered teleports.</p>
+      </div>
+      <div class="setting">
+        <h4>Anti Kick</h4>
+        <p>Attempts to block kick methods.</p>
+      </div>
+      <div class="setting">
+        <h4>Luau Highlighting</h4>
+        <p>Advanced Luau syntax highlighting. Always enabled.</p>
+      </div>
+    </div>
+
   </div>
 </div>
 
-<div class="exec" id="exec">
-  <div class="exec-btn">▶️</div>
-  <div class="exec-btn">🧹</div>
-</div>
-
-</div>
-</div>
+<!-- Modal -->
+<div class="modal" id="modal">
+  <div class="modal-box">
+    <input id="saveTitle" placeholder="Script title"/>
+    <textarea id="saveCode" rows="6" placeholder="Script code"></textarea>
+    <button onclick="saveScript()">Add</button>
+  </div>
 </div>
 
 <script>
-/* ================= STATE ================= */
-let tabs=[{name:"Script 1",code:'print("Parallax Ready")'}];
-let activeTab=0;
+const code=document.getElementById("code");
+const hl=document.getElementById("hl");
 
-/* ================= NAV ================= */
-function setPanel(id){
-  document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"));
-  document.getElementById(id).classList.add("active");
+code.addEventListener("input",()=>hl.textContent=code.value);
+hl.textContent=code.value;
 
-  document.querySelectorAll(".nav-btn").forEach(n=>n.classList.remove("active"));
-  document.querySelector(`.nav-btn[data-panel="${id}"]`)?.classList.add("active");
-
-  document.getElementById("exec").style.display=id==="editor"?"flex":"none";
-}
-
+/* Panel switching */
 document.querySelectorAll(".nav-btn").forEach(b=>{
-  b.onclick=()=>setPanel(b.dataset.panel);
-});
-
-function dismiss(){
-  document.getElementById("disclaimer").style.display="none";
-  setPanel("editor");
-}
-
-/* ================= TABS ================= */
-function renderTabs(){
-  tabs.forEach((t,i)=>{});
-  const el=document.getElementById("tabs");
-  el.innerHTML="";
-  tabs.forEach((tab,i)=>{
-    const d=document.createElement("div");
-    d.className="tab"+(i===activeTab?" active":"");
-    d.innerHTML=`${tab.name}<span class="close">✕</span>`;
-    d.onclick=e=>{
-      if(e.target.classList.contains("close") && tabs.length>1){
-        tabs.splice(i,1);
-        activeTab=Math.max(0,activeTab-1);
-        loadTab();
-        renderTabs();
-        return;
-      }
-      activeTab=i;
-      loadTab();
-      renderTabs();
-    };
-    el.appendChild(d);
-  });
-
-  const add=document.createElement("div");
-  add.className="tab add";
-  add.textContent="+";
-  add.onclick=()=>{
-    tabs.push({name:"Script "+(tabs.length+1),code:""});
-    activeTab=tabs.length-1;
-    loadTab();
-    renderTabs();
+  b.onclick=()=>{
+    document.querySelectorAll(".nav-btn").forEach(n=>n.classList.remove("active"));
+    b.classList.add("active");
+    document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"));
+    document.getElementById(b.dataset.panel).classList.add("active");
+    if(b.dataset.panel==="saved") loadSaved();
   };
-  el.appendChild(add);
-}
-
-function loadTab(){
-  editorInput.value=tabs[activeTab].code;
-  syncHighlight();
-}
-
-/* ================= SYNTAX ================= */
-function highlight(code){
-  return code
-    .replace(/&/g,"&amp;")
-    .replace(/</g,"&lt;")
-    .replace(/>/g,"&gt;")
-    .replace(/(--.*)/g,'<span class="com">$1</span>')
-    .replace(/"(.*?)"/g,'<span class="str">"$1"</span>')
-    .replace(/\b(function|local|if|then|end|for|while|do|return)\b/g,'<span class="kw">$1</span>')
-    .replace(/\b(\d+)\b/g,'<span class="num">$1</span>');
-}
-
-function syncHighlight(){
-  highlightEl.innerHTML=highlight(editorInput.value);
-  highlightEl.scrollTop=editorInput.scrollTop;
-}
-
-editorInput.addEventListener("input",()=>{
-  tabs[activeTab].code=editorInput.value;
-  syncHighlight();
 });
 
-editorInput.addEventListener("scroll",()=>{
-  highlightEl.scrollTop=editorInput.scrollTop;
-});
-
-/* ================= SAVED ================= */
-function addSaved(){
-  const saved=JSON.parse(localStorage.getItem("savedScripts")||"[]");
-  saved.push({title:tabs[activeTab].name,code:tabs[activeTab].code});
-  localStorage.setItem("savedScripts",JSON.stringify(saved));
+/* Saved scripts */
+function openModal(){
+  document.getElementById("modal").classList.add("active");
+}
+function saveScript(){
+  const t=saveTitle.value;
+  const c=saveCode.value;
+  const arr=JSON.parse(localStorage.getItem("saved")||"[]");
+  arr.push({t,c});
+  localStorage.setItem("saved",JSON.stringify(arr));
+  document.getElementById("modal").classList.remove("active");
   loadSaved();
 }
-
 function loadSaved(){
-  savedList.innerHTML="";
-  const saved=JSON.parse(localStorage.getItem("savedScripts")||"[]");
-  saved.forEach((s,i)=>{
+  const list=document.getElementById("savedList");
+  list.innerHTML="";
+  const arr=JSON.parse(localStorage.getItem("saved")||"[]");
+  arr.forEach((s,i)=>{
     const d=document.createElement("div");
     d.className="saved-item";
-    d.innerHTML=`
-      <span>${s.title}</span>
+    d.innerHTML=`<div>${s.t}</div>
       <div class="saved-actions">
-        <button onclick="loadSavedScript(${i})">Edit</button>
-        <button>Execute</button>
-        <button onclick="deleteSaved(${i})">Delete</button>
-      </div>
-    `;
-    savedList.appendChild(d);
+        <button onclick="code.value=${JSON.stringify(s.c)};hl.textContent=code.value">Execute</button>
+        <button onclick="openModal()">Edit</button>
+        <button onclick="del(${i})">Delete</button>
+      </div>`;
+    list.appendChild(d);
   });
 }
-
-function loadSavedScript(i){
-  const saved=JSON.parse(localStorage.getItem("savedScripts")||"[]");
-  tabs.push({name:saved[i].title,code:saved[i].code});
-  activeTab=tabs.length-1;
-  setPanel("editor");
-  loadTab();
-  renderTabs();
-}
-
-function deleteSaved(i){
-  const saved=JSON.parse(localStorage.getItem("savedScripts")||"[]");
-  saved.splice(i,1);
-  localStorage.setItem("savedScripts",JSON.stringify(saved));
+function del(i){
+  const a=JSON.parse(localStorage.getItem("saved")||"[]");
+  a.splice(i,1);
+  localStorage.setItem("saved",JSON.stringify(a));
   loadSaved();
 }
 
-/* ================= SCRIPTBLOX ================= */
-async function search(){
-  grid.innerHTML="";
-  try{
-    const r=await fetch(`https://scriptblox.com/api/script/search?q=${encodeURIComponent(search.value)}`);
-    const d=await r.json();
-    d.result.scripts.forEach(s=>{
-      const c=document.createElement("div");
-      c.className="card";
-      c.innerHTML=`
-        <div class="thumb"><img src="${s.game?.imageUrl||""}"></div>
-        <div class="card-info"><b>${s.title}</b></div>
-      `;
-      c.onclick=async()=>{
-        const raw=await fetch(`https://scriptblox.com/api/script/raw/${s._id}`).then(r=>r.text());
-        tabs.push({name:s.title,code:raw});
-        activeTab=tabs.length-1;
-        setPanel("editor");
-        loadTab();
-        renderTabs();
-      };
-      grid.appendChild(c);
-    });
-  }catch{}
-}
-
-/* INIT */
-renderTabs();
-loadTab();
-loadSaved();
+/* ScriptBlox */
+search.oninput=async()=>{
+  const q=search.value.trim();
+  if(!q) return;
+  results.innerHTML="Loading…";
+  const r=await fetch(`https://scriptblox.com/api/script/search?q=${encodeURIComponent(q)}&page=1&max=30`);
+  const j=await r.json();
+  results.innerHTML="";
+  j.result.scripts.forEach(s=>{
+    const c=document.createElement("div");
+    c.className="card";
+    c.innerHTML=`<b>${s.title}</b><span>${s.views} views</span>`;
+    c.onclick=()=>{code.value=s.script;hl.textContent=code.value};
+    results.appendChild(c);
+  });
+};
 </script>
+
 </body>
 </html>
