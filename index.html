@@ -8,35 +8,24 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
 <style>
-/* ================== THEME ================== */
 :root{
   --bg:#05050a;
   --panel:#0d0d1a;
-  --panel-soft:rgba(20,20,40,.75);
+  --panel-soft:rgba(20,20,40,.78);
   --border:rgba(255,255,255,.08);
-  --text:#ffffff;
+  --text:#fff;
   --muted:#9aa0b4;
   --purple:#8b5cf6;
   --glow:0 0 24px rgba(139,92,246,.45);
 }
 
-*{box-sizing:border-box;font-family:Inter,system-ui}
+*{box-sizing:border-box;font-family:Inter}
 html,body{margin:0;height:100%;background:var(--bg);color:var(--text);overflow:hidden}
 
-/* ================== LAYOUT ================== */
-.app{
-  height:100svh;
-  display:grid;
-  grid-template-columns:100px 1fr;
-}
+.app{height:100svh;display:grid;grid-template-columns:100px 1fr}
 
-/* ================== SIDEBAR ================== */
-.sidebar{
-  display:flex;
-  justify-content:center;
-  align-items:center;
-}
-
+/* ===== SIDEBAR ===== */
+.sidebar{display:flex;justify-content:center;align-items:center}
 .nav-wrap{
   background:linear-gradient(180deg,#0b0b15,#06060c);
   border:1px solid var(--border);
@@ -45,220 +34,113 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--text);overflow:h
   display:flex;
   flex-direction:column;
   gap:14px;
-  box-shadow:inset 0 0 0 1px rgba(255,255,255,.02);
 }
-
-.logo{
-  font-weight:800;
-  letter-spacing:2px;
-  color:var(--purple);
-  text-align:center;
-  margin-bottom:6px;
-}
-
+.logo{color:var(--purple);font-weight:800;text-align:center}
 .nav-btn{
-  width:56px;height:56px;
-  border-radius:18px;
+  width:56px;height:56px;border-radius:18px;
   display:grid;place-items:center;
-  color:var(--muted);
-  cursor:pointer;
-  transition:.25s;
+  cursor:pointer;color:var(--muted);
+  transition:.25s
 }
-
-.nav-btn.active,
-.nav-btn:hover{
+.nav-btn.active,.nav-btn:hover{
   background:rgba(139,92,246,.18);
   color:var(--purple);
-  box-shadow:var(--glow);
+  box-shadow:var(--glow)
 }
 
-/* ================== MAIN ================== */
+/* ===== MAIN ===== */
 .main{display:flex;flex-direction:column;height:100%}
+.header{height:60px;padding:0 22px;display:flex;align-items:center;border-bottom:1px solid var(--border);font-weight:700}
+.content{flex:1;position:relative;overflow:hidden}
 
-.header{
-  height:60px;
-  display:flex;
-  align-items:center;
-  padding:0 22px;
-  border-bottom:1px solid var(--border);
-  font-weight:700;
-}
+/* ===== PANELS ===== */
+.panel{position:absolute;inset:0;padding:16px;display:none}
+.panel.active{display:flex;animation:fade .25s ease}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1}}
 
-.content{
-  flex:1;
-  position:relative;
-  overflow:hidden;
-}
+/* ===== DISCLAIMER ===== */
+#disclaimer{flex-direction:column;align-items:center;justify-content:center;gap:18px;text-align:center}
+#disclaimer button{padding:14px 34px;border-radius:18px;border:none;background:linear-gradient(135deg,var(--purple),#a78bfa);font-weight:700}
 
-/* ================== PANELS ================== */
-.panel{
-  position:absolute;
-  inset:0;
-  padding:16px;
-  display:none;
-}
-
-.panel.active{
-  display:flex;
-  animation:fade .25s ease;
-}
-
-@keyframes fade{
-  from{opacity:0;transform:translateY(6px)}
-  to{opacity:1;transform:none}
-}
-
-/* ================== DISCLAIMER ================== */
-#disclaimer{
-  justify-content:center;
-  align-items:center;
-  text-align:center;
-  flex-direction:column;
-  gap:18px;
-}
-
-#disclaimer button{
-  padding:14px 34px;
-  border-radius:18px;
-  border:none;
-  background:linear-gradient(135deg,var(--purple),#a78bfa);
-  color:white;
-  font-weight:700;
-}
-
-/* ================== EDITOR ================== */
-#editor{flex-direction:column;gap:12px}
-
-.tabs{
-  display:flex;
-  gap:8px;
-  align-items:center;
-}
-
+/* ===== EDITOR ===== */
+#editor{flex-direction:column;gap:10px}
+.tabs{display:flex;gap:8px;align-items:center}
 .tab{
-  padding:8px 14px;
-  border-radius:12px;
-  background:var(--panel);
-  border:1px solid var(--border);
-  color:var(--muted);
-  cursor:pointer;
-  transition:.2s;
+  padding:8px 14px;border-radius:12px;
+  background:var(--panel);border:1px solid var(--border);
+  color:var(--muted);cursor:pointer;display:flex;gap:8px;align-items:center
 }
-
-.tab.active{
-  color:white;
-  box-shadow:var(--glow);
-}
-
+.tab.active{color:white;box-shadow:var(--glow)}
+.tab .close{opacity:.5}
+.tab .close:hover{opacity:1}
 .tab.add{font-weight:800}
 
+.editor-wrap{flex:1;display:flex}
 .editor{
-  flex:1;
-  background:var(--panel-soft);
-  border:1px solid var(--border);
-  border-radius:22px;
-  padding:18px;
-  font-family:ui-monospace,SFMono-Regular;
-  white-space:pre;
-  overflow:auto;
-  outline:none;
+  flex:1;background:var(--panel-soft);border:1px solid var(--border);
+  border-radius:22px;padding:18px;font-family:ui-monospace;
+  white-space:pre;overflow:auto;outline:none
 }
 
-/* ================== SCRIPTBLOX ================== */
-#scriptblox{
-  flex-direction:column;
-  gap:12px;
-}
+/* ===== SYNTAX ===== */
+.kw{color:#c084fc}
+.str{color:#86efac}
+.num{color:#60a5fa}
+.com{color:#6b7280}
 
-.sb-search{
-  display:flex;
-  gap:10px;
-}
-
-.sb-search input{
-  flex:1;
-  padding:14px;
-  border-radius:16px;
-  border:1px solid var(--border);
-  background:var(--panel);
-  color:white;
-}
-
-.sb-results{
-  flex:1;
-  overflow:auto;
-}
-
-.sb-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
-  gap:14px;
-}
-
+/* ===== SCRIPTBLOX ===== */
+#scriptblox{flex-direction:column;gap:12px}
+.sb-search{display:flex;gap:10px}
+.sb-search input{flex:1;padding:14px;border-radius:16px;background:var(--panel);border:1px solid var(--border);color:white}
+.sb-results{flex:1;overflow:auto}
+.sb-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
 .card{
-  background:var(--panel-soft);
-  border:1px solid var(--border);
-  border-radius:20px;
-  overflow:hidden;
-  cursor:pointer;
-  transition:.25s;
+  background:var(--panel-soft);border:1px solid var(--border);
+  border-radius:20px;overflow:hidden;cursor:pointer;transition:.25s
 }
-
-.card:hover{
-  transform:translateY(-4px);
-  box-shadow:var(--glow);
-}
-
+.card:hover{transform:translateY(-4px);box-shadow:var(--glow)}
 .thumb{height:130px;background:black}
 .thumb img{width:100%;height:100%;object-fit:cover}
-
 .card-info{padding:12px}
-.card-info small{color:var(--muted)}
+.empty{display:none;color:var(--muted);text-align:center;margin-top:40px}
 
-.empty{
-  height:100%;
-  display:none;
-  align-items:center;
-  justify-content:center;
-  color:var(--muted);
-}
+/* ===== SAVED ===== */
+#saved{flex-direction:column;gap:12px}
+.saved-item{padding:12px;border:1px solid var(--border);border-radius:14px;margin-bottom:10px;cursor:pointer}
 
-/* ================== SAVED SCRIPTS ================== */
-#saved{
-  flex-direction:column;
-  gap:12px;
-}
+/* ===== SETTINGS ===== */
+.setting{padding:14px;border:1px solid var(--border);border-radius:16px;margin-bottom:12px}
+.setting b{display:block}
+.setting small{color:var(--muted)}
 
-.saved-list{
-  flex:1;
-  overflow:auto;
-}
-
-.saved-item{
-  padding:12px;
-  border-radius:14px;
-  border:1px solid var(--border);
-  margin-bottom:10px;
-  cursor:pointer;
-}
-
-/* ================== EXEC BUTTONS ================== */
-.exec{
-  position:absolute;
-  right:18px;
-  bottom:18px;
-  display:none;
-  gap:14px;
-}
-
-.exec-btn{
-  width:58px;height:58px;
-  border-radius:20px;
-  background:linear-gradient(135deg,#15152e,#090912);
-  border:1px solid var(--border);
-  display:grid;place-items:center;
-}
+/* ===== EXEC ===== */
+.exec{position:absolute;right:18px;bottom:18px;display:none;gap:14px}
+.exec-btn{width:58px;height:58px;border-radius:20px;background:#0b0b15;border:1px solid var(--border);display:grid;place-items:center}
 .exec-btn:hover{box-shadow:var(--glow)}
+
+/* ===== MODAL ===== */
+.modal{
+  position:absolute;inset:0;
+  background:rgba(0,0,0,.55);
+  display:none;align-items:center;justify-content:center
+}
+.modal.active{display:flex}
+.modal-box{
+  width:90%;max-width:420px;
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:22px;padding:18px;
+  animation:fade .2s ease
+}
+.modal-box input,.modal-box textarea{
+  width:100%;margin-bottom:10px;padding:12px;border-radius:12px;
+  background:#090915;border:1px solid var(--border);color:white
+}
+
+/* ===== iPad FIX ===== */
+@media (min-width:768px){
+  .editor{height:100%}
+}
 </style>
 </head>
 
@@ -276,162 +158,170 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--text);overflow:h
 </div>
 
 <div class="main">
-  <div class="header">Parallax</div>
-  <div class="content">
+<div class="header">Parallax</div>
+<div class="content">
 
-    <div class="panel active" id="disclaimer">
-      <h2>Disclaimer</h2>
-      <p style="color:var(--muted)">Use at your own risk.</p>
-      <button onclick="dismiss()">Continue</button>
-    </div>
+<div class="panel active" id="disclaimer">
+  <h2>Disclaimer</h2>
+  <p style="color:var(--muted)">Use at your own risk.</p>
+  <button onclick="dismiss()">Continue</button>
+</div>
 
-    <div class="panel" id="editor">
-      <div class="tabs" id="tabs">
-        <div class="tab active">Script 1</div>
-        <div class="tab add" onclick="newTab()">+</div>
-      </div>
-      <div class="editor" id="editorBox" contenteditable spellcheck="false">print("Parallax Ready")</div>
-    </div>
-
-    <div class="panel" id="scriptblox">
-      <div class="sb-search">
-        <input id="search" placeholder="Search ScriptBlox">
-        <button onclick="search()">Search</button>
-      </div>
-      <div class="sb-results">
-        <div class="sb-grid" id="grid"></div>
-        <div class="empty" id="empty">No scripts found.</div>
-      </div>
-    </div>
-
-    <div class="panel" id="saved">
-      <button onclick="saveCurrent()">Save Current Script</button>
-      <div class="saved-list" id="savedList"></div>
-    </div>
-
-    <div class="panel" id="settings">Settings</div>
-
-    <div class="exec" id="exec">
-      <div class="exec-btn">▶️</div>
-      <div class="exec-btn">🧹</div>
-    </div>
-
+<div class="panel" id="editor">
+  <div class="tabs" id="tabs"></div>
+  <div class="editor-wrap">
+    <div class="editor" id="editorBox" contenteditable spellcheck="false"></div>
   </div>
+</div>
+
+<div class="panel" id="scriptblox">
+  <div class="sb-search">
+    <input id="search" placeholder="Search ScriptBlox">
+    <button onclick="search()">Search</button>
+  </div>
+  <div class="sb-results">
+    <div class="sb-grid" id="grid"></div>
+    <div class="empty" id="empty">No scripts found.</div>
+  </div>
+</div>
+
+<div class="panel" id="saved">
+  <button onclick="openSave()">Save Current Script</button>
+  <div id="savedList"></div>
+</div>
+
+<div class="panel" id="settings">
+  <div class="setting">
+    <b>Luau Syntax Highlighting</b>
+    <small>Automatically highlights Luau keywords and syntax while typing.</small>
+  </div>
+  <div class="setting">
+    <b>Script Anti-Scam</b>
+    <small>Warns about suspicious patterns in scripts.</small>
+  </div>
+  <div class="setting">
+    <b>Verify Teleports</b>
+    <small>Ensures scripts persist during teleports.</small>
+  </div>
+</div>
+
+<div class="exec" id="exec">
+  <div class="exec-btn">▶️</div>
+  <div class="exec-btn">🧹</div>
+</div>
+
+<div class="modal" id="saveModal">
+  <div class="modal-box">
+    <input id="saveTitle" placeholder="Script title">
+    <textarea id="saveCode" rows="6"></textarea>
+    <button onclick="confirmSave()">Add</button>
+  </div>
+</div>
+
+</div>
 </div>
 </div>
 
 <script>
-/* ================== STATE ================== */
-let tabs=[{name:"Script 1",code:document.getElementById("editorBox").innerText}];
+/* ===== STATE ===== */
+let tabs=[{name:"Script 1",code:'print("Parallax Ready")'}];
 let activeTab=0;
 
-/* ================== NAV ================== */
+/* ===== NAV ===== */
 function setPanel(id){
   document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"));
   document.getElementById(id).classList.add("active");
-
   document.querySelectorAll(".nav-btn").forEach(n=>n.classList.remove("active"));
   document.querySelector(`.nav-btn[data-panel="${id}"]`)?.classList.add("active");
-
-  document.getElementById("exec").style.display = id==="editor" ? "flex":"none";
+  document.getElementById("exec").style.display=id==="editor"?"flex":"none";
 }
+document.querySelectorAll(".nav-btn").forEach(b=>b.onclick=()=>setPanel(b.dataset.panel));
+function dismiss(){document.getElementById("disclaimer").style.display="none";setPanel("editor")}
 
-document.querySelectorAll(".nav-btn").forEach(b=>{
-  b.onclick=()=>setPanel(b.dataset.panel);
-});
-
-function dismiss(){
-  document.getElementById("disclaimer").style.display="none";
-  setPanel("editor");
-}
-
-/* ================== TABS ================== */
+/* ===== TABS ===== */
 function renderTabs(){
-  const t=document.getElementById("tabs");
-  t.innerHTML="";
+  const t=document.getElementById("tabs");t.innerHTML="";
   tabs.forEach((tab,i)=>{
     const d=document.createElement("div");
     d.className="tab"+(i===activeTab?" active":"");
-    d.textContent=tab.name;
-    d.onclick=()=>switchTab(i);
+    d.innerHTML=`${tab.name}<span class="close">✕</span>`;
+    d.onclick=e=>{
+      if(e.target.classList.contains("close") && tabs.length>1){
+        tabs.splice(i,1);
+        activeTab=Math.max(0,activeTab-1);
+        loadTab();renderTabs();return;
+      }
+      activeTab=i;loadTab();renderTabs();
+    };
     t.appendChild(d);
   });
   const add=document.createElement("div");
-  add.className="tab add";
-  add.textContent="+";
-  add.onclick=newTab;
+  add.className="tab add";add.textContent="+";
+  add.onclick=()=>{tabs.push({name:"Script "+(tabs.length+1),code:""});activeTab=tabs.length-1;loadTab();renderTabs()};
   t.appendChild(add);
 }
-
-function newTab(){
-  tabs.push({name:"Script "+(tabs.length+1),code:""});
-  switchTab(tabs.length-1);
+function loadTab(){
+  document.getElementById("editorBox").innerHTML=highlight(tabs[activeTab].code);
 }
+renderTabs();loadTab();
 
-function switchTab(i){
-  tabs[activeTab].code=document.getElementById("editorBox").innerText;
-  activeTab=i;
-  document.getElementById("editorBox").innerText=tabs[i].code;
-  renderTabs();
+/* ===== SYNTAX ===== */
+function highlight(code){
+  return code
+    .replace(/(--.*)/g,'<span class="com">$1</span>')
+    .replace(/"(.*?)"/g,'<span class="str">"$1"</span>')
+    .replace(/\b(function|local|if|then|end|for|while|do|return)\b/g,'<span class="kw">$1</span>')
+    .replace(/\b(\d+)\b/g,'<span class="num">$1</span>');
 }
+document.getElementById("editorBox").addEventListener("input",e=>{
+  tabs[activeTab].code=e.target.innerText;
+  e.target.innerHTML=highlight(e.target.innerText);
+});
 
-renderTabs();
-
-/* ================== SAVED ================== */
-function saveCurrent(){
+/* ===== SAVE ===== */
+function openSave(){
+  document.getElementById("saveModal").classList.add("active");
+  saveCode.value=tabs[activeTab].code;
+}
+function confirmSave(){
   const saved=JSON.parse(localStorage.getItem("savedScripts")||"[]");
-  saved.push({title:tabs[activeTab].name,code:tabs[activeTab].code});
+  saved.push({title:saveTitle.value,code:saveCode.value});
   localStorage.setItem("savedScripts",JSON.stringify(saved));
+  saveModal.classList.remove("active");
   loadSaved();
 }
-
 function loadSaved(){
-  const list=document.getElementById("savedList");
-  list.innerHTML="";
+  savedList.innerHTML="";
   const saved=JSON.parse(localStorage.getItem("savedScripts")||"[]");
   saved.forEach(s=>{
     const d=document.createElement("div");
-    d.className="saved-item";
-    d.textContent=s.title;
-    d.onclick=()=>{
-      tabs.push({name:s.title,code:s.code});
-      switchTab(tabs.length-1);
-      setPanel("editor");
-    };
-    list.appendChild(d);
+    d.className="saved-item";d.textContent=s.title;
+    d.onclick=()=>{tabs.push({name:s.title,code:s.code});activeTab=tabs.length-1;setPanel("editor");loadTab();renderTabs()};
+    savedList.appendChild(d);
   });
 }
 loadSaved();
 
-/* ================== SCRIPTBLOX ================== */
+/* ===== SCRIPTBLOX ===== */
 async function search(){
-  const q=document.getElementById("search").value;
-  const grid=document.getElementById("grid");
-  const empty=document.getElementById("empty");
-  grid.innerHTML="";
-  empty.style.display="none";
+  grid.innerHTML="";empty.style.display="none";
   try{
-    const r=await fetch(`https://scriptblox.com/api/script/search?q=${encodeURIComponent(q)}`);
+    const r=await fetch(`https://scriptblox.com/api/script/search?q=${encodeURIComponent(search.value)}`);
     const d=await r.json();
-    if(!d.result.scripts.length){empty.style.display="flex";return;}
+    if(!d.result.scripts.length){empty.style.display="block";return;}
     d.result.scripts.forEach(s=>{
       const c=document.createElement("div");
       c.className="card";
-      c.innerHTML=`
-        <div class="thumb"><img src="${s.game?.imageUrl||""}"></div>
-        <div class="card-info"><b>${s.title}</b><br><small>${s.game?.name||"Universal"}</small></div>`;
+      c.innerHTML=`<div class="thumb"><img src="${s.game?.imageUrl||""}"></div>
+      <div class="card-info"><b>${s.title}</b></div>`;
       c.onclick=async()=>{
         const raw=await fetch(`https://scriptblox.com/api/script/raw/${s._id}`).then(r=>r.text());
-        tabs.push({name:s.title,code:raw});
-        switchTab(tabs.length-1);
-        setPanel("editor");
+        tabs.push({name:s.title,code:raw});activeTab=tabs.length-1;
+        setPanel("editor");loadTab();renderTabs();
       };
       grid.appendChild(c);
     });
-  }catch(e){
-    empty.style.display="flex";
-    empty.textContent="ScriptBlox error.";
-  }
+  }catch{empty.style.display="block";empty.textContent="ScriptBlox error";}
 }
 </script>
 </body>
