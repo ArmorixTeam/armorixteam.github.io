@@ -1,28 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Parallax Executor</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Parallax</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
 <style>
 /* =========================
-   THEME
+   CORE THEME
 ========================= */
 :root {
-  --bg: #07070c;
-  --panel: rgba(18,18,30,0.75);
-  --panel-solid: #12121e;
+  --bg: #05050a;
+  --panel: rgba(18,18,30,0.65);
+  --panel-solid: #10101c;
   --border: rgba(255,255,255,0.08);
   --text: #ffffff;
   --muted: #9aa0b4;
   --purple: #8b5cf6;
-  --purple-2: #a78bfa;
+  --pink: #ec4899;
   --cyan: #22d3ee;
-  --danger: #ef4444;
-  --glow: 0 0 24px rgba(139,92,246,.35);
+  --glow: 0 0 40px rgba(139,92,246,.45);
 }
 
 /* =========================
@@ -35,15 +34,29 @@
 
 html, body {
   margin: 0;
-  background: radial-gradient(1200px 600px at top, #101028, var(--bg));
-  color: var(--text);
   height: 100%;
+  background: var(--bg);
+  color: var(--text);
   overflow: hidden;
 }
 
-@keyframes fadeUp {
-  from { opacity:0; transform:translateY(12px); }
-  to { opacity:1; transform:none; }
+/* =========================
+   BACKGROUND FX
+========================= */
+.bg {
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(600px 400px at 20% 10%, rgba(139,92,246,.18), transparent),
+    radial-gradient(500px 500px at 80% 80%, rgba(34,211,238,.12), transparent),
+    radial-gradient(400px 400px at 70% 20%, rgba(236,72,153,.12), transparent);
+  animation: floatBg 12s ease-in-out infinite alternate;
+  z-index: -1;
+}
+
+@keyframes floatBg {
+  from { transform: translateY(0); }
+  to { transform: translateY(-20px); }
 }
 
 /* =========================
@@ -53,44 +66,45 @@ html, body {
   width: 100%;
   height: 100svh;
   display: grid;
-  grid-template-columns: 72px 1fr;
-  animation: fadeUp .5s ease;
+  grid-template-columns: 78px 1fr;
 }
 
 /* =========================
    SIDEBAR
 ========================= */
 .sidebar {
-  background: linear-gradient(180deg, #0b0b15, #08080d);
+  backdrop-filter: blur(18px);
+  background: linear-gradient(180deg,#0b0b15,#07070c);
   border-right: 1px solid var(--border);
   display: flex;
   flex-direction: column;
   align-items: center;
   padding: 14px 0;
-  gap: 12px;
+  gap: 14px;
 }
 
 .logo {
-  font-weight: 800;
-  letter-spacing: 1px;
+  font-weight: 900;
+  font-size: 14px;
+  letter-spacing: 2px;
   color: var(--purple);
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
-.nav-btn {
-  width: 46px;
-  height: 46px;
-  border-radius: 14px;
+.nav {
+  width: 50px;
+  height: 50px;
+  border-radius: 16px;
   display: grid;
   place-items: center;
   color: var(--muted);
   cursor: pointer;
-  transition: .2s;
+  transition: .25s;
 }
 
-.nav-btn:hover,
-.nav-btn.active {
-  background: rgba(139,92,246,.12);
+.nav:hover,
+.nav.active {
+  background: rgba(139,92,246,.15);
   color: var(--purple);
   box-shadow: var(--glow);
 }
@@ -108,24 +122,24 @@ html, body {
    HEADER
 ========================= */
 .header {
-  height: 56px;
+  height: 60px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 18px;
+  padding: 0 20px;
   border-bottom: 1px solid var(--border);
-  background: linear-gradient(90deg, rgba(139,92,246,.12), transparent);
+  backdrop-filter: blur(12px);
 }
 
-.header .title {
-  font-weight: 700;
-  letter-spacing: .4px;
+.header b {
+  font-size: 18px;
+  letter-spacing: .5px;
 }
 
-.stats {
+.hud {
   display: flex;
-  gap: 16px;
-  font-size: 12px;
+  gap: 18px;
+  font-size: 11px;
   color: var(--muted);
 }
 
@@ -140,13 +154,18 @@ html, body {
 .panel {
   position: absolute;
   inset: 0;
-  display: none;
   padding: 16px;
+  display: none;
 }
 
 .panel.active {
   display: flex;
-  animation: fadeUp .25s ease;
+  animation: fade .3s ease;
+}
+
+@keyframes fade {
+  from { opacity:0; transform: translateY(10px); }
+  to { opacity:1; transform:none; }
 }
 
 /* =========================
@@ -160,41 +179,35 @@ html, body {
   text-align: center;
 }
 
-.disclaimer .warn {
+.warn {
   width: 96px;
   height: 96px;
   filter: drop-shadow(var(--glow));
 }
 
 .disclaimer button {
-  padding: 12px 26px;
-  border-radius: 16px;
+  padding: 14px 28px;
+  border-radius: 18px;
   border: none;
-  font-weight: 600;
-  background: linear-gradient(135deg,var(--purple),var(--purple-2));
+  font-weight: 700;
+  background: linear-gradient(135deg,var(--purple),var(--pink));
   color: white;
 }
 
 /* =========================
    EDITOR
 ========================= */
-.editor-wrap {
-  flex: 1;
-  display: flex;
-  gap: 16px;
-}
-
 .editor {
   flex: 1;
   background: var(--panel);
-  backdrop-filter: blur(18px);
+  backdrop-filter: blur(20px);
   border: 1px solid var(--border);
-  border-radius: 18px;
-  padding: 16px;
+  border-radius: 22px;
+  padding: 18px;
   font-family: ui-monospace, SFMono-Regular;
-  outline: none;
-  overflow: auto;
   white-space: pre;
+  overflow: auto;
+  outline: none;
   box-shadow: inset 0 0 0 1px rgba(255,255,255,.02);
 }
 
@@ -202,124 +215,84 @@ html, body {
    SCRIPTBLOX
 ========================= */
 .scriptblox {
-  display: flex;
   flex-direction: column;
-  gap: 14px;
-  width: 100%;
+  gap: 16px;
 }
 
-.sb-search {
+.sb-top {
   display: flex;
-  gap: 10px;
+  gap: 12px;
 }
 
-.sb-search input {
+.sb-top input {
   flex: 1;
-  background: var(--panel-solid);
+  padding: 14px;
+  border-radius: 16px;
   border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 12px;
+  background: var(--panel-solid);
   color: white;
 }
 
 .sb-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill,minmax(220px,1fr));
-  gap: 14px;
+  grid-template-columns: repeat(auto-fill,minmax(240px,1fr));
+  gap: 16px;
 }
 
-.script-card {
+.card {
   background: var(--panel);
-  border-radius: 18px;
-  overflow: hidden;
+  backdrop-filter: blur(18px);
   border: 1px solid var(--border);
+  border-radius: 20px;
+  overflow: hidden;
   cursor: pointer;
-  transition: .25s;
+  transition: .3s;
 }
 
-.script-card:hover {
-  transform: translateY(-4px);
+.card:hover {
+  transform: translateY(-6px) scale(1.02);
   box-shadow: var(--glow);
 }
 
-.script-thumb {
-  height: 120px;
+.thumb {
+  height: 140px;
   background: #000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
-.script-thumb img {
+.thumb img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-.script-info {
-  padding: 12px;
+.card-info {
+  padding: 14px;
 }
 
-.script-info b {
+.card-info b {
   font-size: 14px;
 }
 
-.script-info small {
+.card-info small {
   color: var(--muted);
-}
-
-/* =========================
-   SETTINGS
-========================= */
-.settings {
-  gap: 14px;
-  flex-direction: column;
-}
-
-.setting {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  padding: 16px;
-  display: flex;
-  justify-content: space-between;
-}
-
-.switch {
-  width: 48px;
-  height: 26px;
-  background: #1f1f2e;
-  border-radius: 999px;
-  position: relative;
-}
-
-.switch::after {
-  content:"";
-  position:absolute;
-  width:20px;
-  height:20px;
-  border-radius:50%;
-  background:white;
-  top:3px;
-  left:3px;
 }
 
 /* =========================
    EXEC BAR
 ========================= */
-.exec-bar {
+.exec {
   position: absolute;
-  right: 18px;
-  bottom: 18px;
+  right: 20px;
+  bottom: 20px;
   display: flex;
-  gap: 12px;
+  gap: 14px;
 }
 
 .exec-btn {
-  width: 54px;
-  height: 54px;
-  border-radius: 18px;
-  background: linear-gradient(135deg,#12122a,#0b0b14);
+  width: 56px;
+  height: 56px;
+  border-radius: 20px;
+  background: linear-gradient(135deg,#15152e,#090912);
   border: 1px solid var(--border);
   display: grid;
   place-items: center;
@@ -333,24 +306,26 @@ html, body {
 </head>
 
 <body>
+<div class="bg"></div>
+
 <div class="app">
 
   <!-- SIDEBAR -->
   <div class="sidebar">
     <div class="logo">PX</div>
-    <div class="nav-btn active" onclick="openPanel('editor')">✏️</div>
-    <div class="nav-btn" onclick="openPanel('scriptblox')">☁️</div>
-    <div class="nav-btn" onclick="openPanel('settings')">⚙️</div>
+    <div class="nav active" onclick="openPanel('editor')">✏️</div>
+    <div class="nav" onclick="openPanel('scriptblox')">☁️</div>
+    <div class="nav" onclick="openPanel('settings')">⚙️</div>
   </div>
 
   <!-- MAIN -->
   <div class="main">
     <div class="header">
-      <div class="title">Parallax</div>
-      <div class="stats">
+      <b>Parallax</b>
+      <div class="hud">
         <span>FPS: 60</span>
-        <span>Injection: Stable</span>
-        <span>Identity: 8</span>
+        <span>JIT: Enabled</span>
+        <span>UNC: 72%</span>
       </div>
     </div>
 
@@ -366,38 +341,32 @@ html, body {
           Use at your own risk. Parallax is not responsible for bans,
           terminations, or disciplinary actions.
         </p>
-        <button onclick="dismissDisclaimer()">Continue</button>
+        <button onclick="dismiss()">Continue</button>
       </div>
 
       <!-- EDITOR -->
       <div class="panel" id="editor">
-        <div class="editor-wrap">
-          <div class="editor" contenteditable spellcheck="false">
+        <div class="editor" contenteditable spellcheck="false">
 -- Parallax Executor
-print("Ready.")
-          </div>
+print("Injected.")
         </div>
       </div>
 
       <!-- SCRIPTBLOX -->
       <div class="panel scriptblox" id="scriptblox">
-        <div class="sb-search">
-          <input id="sbSearch" placeholder="Search ScriptBlox..." />
-          <button onclick="searchScripts()">Search</button>
+        <div class="sb-top">
+          <input id="search" placeholder="Search ScriptBlox…" />
+          <button onclick="search()">Search</button>
         </div>
-        <div class="sb-grid" id="sbGrid"></div>
+        <div class="sb-grid" id="grid"></div>
       </div>
 
       <!-- SETTINGS -->
-      <div class="panel settings" id="settings">
-        <div class="setting"><span>Robux Purchases</span><div class="switch"></div></div>
-        <div class="setting"><span>Script Anti-Scam</span><div class="switch"></div></div>
-        <div class="setting"><span>Verify Teleports</span><div class="switch"></div></div>
-        <div class="setting"><span>Anti Kick</span><div class="switch"></div></div>
+      <div class="panel" id="settings" style="color:var(--muted)">
+        Advanced settings panel (intentionally flashy later)
       </div>
 
-      <!-- EXEC -->
-      <div class="exec-bar">
+      <div class="exec">
         <div class="exec-btn">▶️</div>
         <div class="exec-btn">🧹</div>
       </div>
@@ -407,64 +376,94 @@ print("Ready.")
 </div>
 
 <script>
-let currentPage = 1;
-
-function openPanel(id) {
+/* =========================
+   NAV
+========================= */
+function openPanel(id){
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
   document.getElementById(id).classList.add('active');
 }
 
-function dismissDisclaimer() {
+function dismiss(){
   document.getElementById('disclaimer').style.display='none';
   openPanel('editor');
 }
 
 /* =========================
-   SCRIPTBLOX + IMAGE CACHE
+   INDEXEDDB IMAGE CACHE
 ========================= */
-const imageCache = new Map();
+let db;
+const req = indexedDB.open("parallax-cache",1);
+req.onupgradeneeded = e => {
+  db = e.target.result;
+  db.createObjectStore("images");
+};
+req.onsuccess = e => db = e.target.result;
 
-async function loadScripts(query="") {
-  const res = await fetch(`https://scriptblox.com/api/script/search?q=${encodeURIComponent(query)}&page=${currentPage}`);
-  const data = await res.json();
-  const grid = document.getElementById("sbGrid");
-  grid.innerHTML = "";
+function cacheImage(key, blob){
+  const tx = db.transaction("images","readwrite");
+  tx.objectStore("images").put(blob,key);
+}
 
-  data.result.scripts.forEach(s => {
+function getCachedImage(key){
+  return new Promise(res=>{
+    const tx = db.transaction("images","readonly");
+    const r = tx.objectStore("images").get(key);
+    r.onsuccess = ()=>res(r.result);
+    r.onerror = ()=>res(null);
+  });
+}
+
+/* =========================
+   SCRIPTBLOX
+========================= */
+async function loadScripts(q=""){
+  const r = await fetch(`https://scriptblox.com/api/script/search?q=${encodeURIComponent(q)}`);
+  const d = await r.json();
+  const g = document.getElementById("grid");
+  g.innerHTML="";
+
+  for(const s of d.result.scripts){
     const card = document.createElement("div");
-    card.className = "script-card";
+    card.className="card";
 
+    const thumb = document.createElement("div");
+    thumb.className="thumb";
     const img = document.createElement("img");
-    if (imageCache.has(s.game?.imageUrl)) {
-      img.src = imageCache.get(s.game.imageUrl);
-    } else if (s.game?.imageUrl) {
-      img.src = s.game.imageUrl;
-      imageCache.set(s.game.imageUrl, s.game.imageUrl);
+
+    if(s.game?.imageUrl){
+      const cached = await getCachedImage(s.game.imageUrl);
+      if(cached){
+        img.src = URL.createObjectURL(cached);
+      } else {
+        const b = await fetch(s.game.imageUrl).then(r=>r.blob());
+        cacheImage(s.game.imageUrl,b);
+        img.src = URL.createObjectURL(b);
+      }
     }
 
+    thumb.appendChild(img);
+
     card.innerHTML = `
-      <div class="script-thumb"></div>
-      <div class="script-info">
+      <div class="card-info">
         <b>${s.title}</b><br>
         <small>${s.game?.name || "Universal"}</small>
       </div>
     `;
+    card.prepend(thumb);
 
-    card.querySelector(".script-thumb").appendChild(img);
-
-    card.onclick = async () => {
+    card.onclick = async ()=>{
       const raw = await fetch(`https://scriptblox.com/api/script/raw/${s._id}`).then(r=>r.text());
       openPanel("editor");
       document.querySelector(".editor").innerText = raw;
     };
 
-    grid.appendChild(card);
-  });
+    g.appendChild(card);
+  }
 }
 
-function searchScripts() {
-  currentPage = 1;
-  loadScripts(document.getElementById("sbSearch").value);
+function search(){
+  loadScripts(document.getElementById("search").value);
 }
 
 loadScripts();
