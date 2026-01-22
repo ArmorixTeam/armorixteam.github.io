@@ -1,564 +1,368 @@
-        .install-btn {
-            background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
-            color: white;
-            border: none;
-            padding: 12px 30px;
-            border-radius: 25px;
-            font-size: 1em;
-            font-weight: 600;
-            cursor: pointer;<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Armorix Team - IPA Repository</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: #000000;
-            min-height: 100vh;
-            padding: 20px;
-        }
-        
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-        
-        .header {
-            text-align: center;
-            color: white;
-            margin-bottom: 40px;
-            padding: 40px 20px;
-        }
-        
-        .header h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        }
-        
-        .header p {
-            font-size: 1.2em;
-            opacity: 0.9;
-        }
-        
-        .tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 30px;
-            background: rgba(255,255,255,0.05);
-            backdrop-filter: blur(10px);
-            padding: 10px;
-            border-radius: 15px;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-        
-        .tab {
-            flex: 1;
-            padding: 15px;
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 10px;
-            color: white;
-            font-size: 1.1em;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .tab:hover {
-            background: rgba(255,255,255,0.1);
-            border-color: rgba(255,255,255,0.2);
-        }
-        
-        .tab.active {
-            background: rgba(255,255,255,0.15);
-            color: #fff;
-            border-color: rgba(255,255,255,0.3);
-        }
-        
-        .tab-content {
-            display: none;
-        }
-        
-        .tab-content.active {
-            display: block;
-        }
-        
-        .repo-url {
-            background: rgba(255,255,255,0.05);
-            backdrop-filter: blur(10px);
-            padding: 20px;
-            border-radius: 15px;
-            margin-bottom: 30px;
-            text-align: center;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-        
-        .repo-url h3 {
-            color: white;
-            margin-bottom: 10px;
-        }
-        
-        .repo-url code {
-            background: rgba(0,0,0,0.3);
-            color: #fff;
-            padding: 10px 20px;
-            border-radius: 8px;
-            display: inline-block;
-            font-size: 1.1em;
-            word-break: break-all;
-        }
-        
-        .app-list {
-            display: grid;
-            gap: 20px;
-        }
-        
-        .app-card {
-            background: rgba(20, 20, 20, 0.95);
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-        
-        .app-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 40px rgba(0,0,0,0.7);
-            border-color: rgba(255,255,255,0.2);
-        }
-        
-        .app-header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-        
-        .app-icon {
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
-            border-radius: 15px;
-            margin-right: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 30px;
-            border: 2px solid rgba(255,255,255,0.1);
-        }
-        
-        .app-info h2 {
-            color: #fff;
-            font-size: 1.5em;
-            margin-bottom: 5px;
-        }
-        
-        .app-version {
-            color: #aaa;
-            font-size: 0.9em;
-        }
-        
-        .app-description {
-            color: #ccc;
-            line-height: 1.6;
-            margin-bottom: 15px;
-        }
-        
-        .install-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 12px 30px;
-            border-radius: 25px;
-            font-size: 1em;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            display: inline-block;
-        }
-        
-        .install-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-        }
-        
-        .upload-section {
-            background: white;
-            border-radius: 15px;
-            padding: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        }
-        
-        .upload-section h2 {
-            color: #333;
-            margin-bottom: 20px;
-            font-size: 1.8em;
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        .form-group label {
-            display: block;
-            color: #333;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-        
-        .form-group input,
-        .form-group textarea,
-        .form-group select {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 1em;
-            font-family: inherit;
-            transition: border-color 0.3s ease;
-        }
-        
-        .form-group input:focus,
-        .form-group textarea:focus,
-        .form-group select:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-        
-        .form-group textarea {
-            min-height: 100px;
-            resize: vertical;
-        }
-        
-        .file-upload {
-            border: 3px dashed #e0e0e0;
-            border-radius: 8px;
-            padding: 30px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            background: #f9f9f9;
-        }
-        
-        .file-upload:hover {
-            border-color: #667eea;
-            background: #f5f5ff;
-        }
-        
-        .file-upload.dragover {
-            border-color: #667eea;
-            background: #f0f0ff;
-        }
-        
-        .file-upload-icon {
-            font-size: 3em;
-            margin-bottom: 10px;
-        }
-        
-        .file-upload input {
-            display: none;
-        }
-        
-        .file-info {
-            margin-top: 15px;
-            padding: 10px;
-            background: #e8f5e9;
-            border-radius: 8px;
-            color: #2e7d32;
-            display: none;
-        }
-        
-        .submit-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 15px 40px;
-            border-radius: 25px;
-            font-size: 1.1em;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            width: 100%;
-            margin-top: 20px;
-        }
-        
-        .submit-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
-        }
-        
-        .submit-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
-        }
-        
-        .alert {
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            display: none;
-        }
-        
-        .alert.success {
-            background: #e8f5e9;
-            color: #2e7d32;
-            border: 1px solid #4caf50;
-        }
-        
-        .alert.error {
-            background: #ffebee;
-            color: #c62828;
-            border: 1px solid #f44336;
-        }
-        
-        .footer {
-            text-align: center;
-            color: white;
-            margin-top: 40px;
-            padding: 20px;
-            opacity: 0.8;
-        }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Parallax</title>
 
-        .no-apps {
-            background: white;
-            border-radius: 15px;
-            padding: 40px;
-            text-align: center;
-            color: #666;
-        }
+<!-- Inter Font -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-        .no-apps-icon {
-            font-size: 4em;
-            margin-bottom: 15px;
-            opacity: 0.5;
-        }
-    </style>
+<style>
+:root {
+  --bg: #0b0b0f;
+  --panel: #12121a;
+  --text: #ffffff;
+  --muted: #a0a0b8;
+  --purple: #8b5cf6;
+  --purple-soft: rgba(139,92,246,0.35);
+  --border: rgba(255,255,255,0.08);
+}
+
+* {
+  box-sizing: border-box;
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: radial-gradient(1200px 600px at top, #141428, var(--bg));
+  color: var(--text);
+  height: 100%;
+}
+
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Fade in */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.app {
+  width: 100%;
+  height: 100svh;
+  max-width: 1200px;
+  display: flex;
+  animation: fadeIn 0.5s ease;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 64px;
+  background: linear-gradient(180deg, #0f0f18, #0b0b0f);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px 0;
+  gap: 14px;
+}
+
+.sidebar button {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sidebar button.active,
+.sidebar button:hover {
+  background: var(--panel);
+  color: var(--purple);
+  box-shadow: 0 0 0 1px var(--border), 0 0 12px var(--purple-soft);
+}
+
+/* Main */
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Header */
+.header {
+  padding: 16px 20px;
+  font-size: 20px;
+  font-weight: 600;
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(90deg, rgba(139,92,246,0.12), transparent);
+}
+
+/* Panels */
+.panel {
+  flex: 1;
+  display: none;
+  animation: fadeIn 0.3s ease;
+}
+
+.panel.active {
+  display: flex;
+}
+
+/* Disclaimer */
+.disclaimer {
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  text-align: center;
+  gap: 16px;
+}
+
+.triangle {
+  width: 90px;
+  height: 90px;
+  filter: drop-shadow(0 0 16px var(--purple-soft));
+}
+
+.disclaimer h2 {
+  margin: 0;
+}
+
+.disclaimer p {
+  max-width: 360px;
+  color: var(--muted);
+}
+
+.disclaimer button {
+  margin-top: 10px;
+  padding: 12px 22px;
+  border-radius: 14px;
+  border: none;
+  background: linear-gradient(135deg, var(--purple), #6d28d9);
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Editor */
+.editor-container {
+  flex: 1;
+  display: flex;
+  padding: 16px;
+  gap: 16px;
+}
+
+.editor {
+  flex: 1;
+  background: var(--panel);
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  padding: 14px;
+  font-family: monospace;
+  color: #e5e7eb;
+  outline: none;
+  overflow: auto;
+  white-space: pre;
+}
+
+.keyword { color: #8b5cf6; }
+.string { color: #34d399; }
+.comment { color: #6b7280; }
+
+/* ScriptBlox */
+.scriptblox {
+  padding: 16px;
+  overflow-y: auto;
+}
+
+.script {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.script:hover {
+  box-shadow: 0 0 0 1px var(--purple-soft);
+}
+
+/* Settings */
+.settings {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.toggle {
+  display: flex;
+  justify-content: space-between;
+  background: var(--panel);
+  border-radius: 14px;
+  padding: 14px;
+  border: 1px solid var(--border);
+}
+
+.switch {
+  width: 44px;
+  height: 24px;
+  border-radius: 999px;
+  background: #1f2933;
+  position: relative;
+}
+
+.switch::after {
+  content: "";
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  background: white;
+  border-radius: 50%;
+  top: 3px;
+  left: 3px;
+}
+
+/* Execute Buttons */
+.execute-bar {
+  position: absolute;
+  bottom: 18px;
+  right: 18px;
+  display: flex;
+  gap: 10px;
+}
+
+.exec-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+
+.exec-btn:hover {
+  box-shadow: 0 0 16px var(--purple-soft);
+}
+</style>
 </head>
+
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>Armorix Team</h1>
-            <p>IPA Repository</p>
-        </div>
-        
-        <div class="tabs">
-            <button class="tab active" onclick="switchTab('browse')">Browse Apps</button>
-            <button class="tab" onclick="switchTab('upload')">Upload App</button>
-        </div>
-        
-        <div id="browse-tab" class="tab-content active">
-            <div class="repo-url">
-                <h3>Add to AltStore/SideStore:</h3>
-                <code>https://armorixteam.xyz/</code>
-            </div>
-            
-            <div id="app-list" class="app-list">
-                <div class="no-apps">
-                    <div class="no-apps-icon">+</div>
-                    <h3>No apps yet</h3>
-                    <p>Be the first to upload an app!</p>
-                </div>
-            </div>
-        </div>
-        
-        <div id="upload-tab" class="tab-content">
-            <div class="upload-section">
-                <h2>Submit Your App</h2>
-                
-                <div id="alert" class="alert"></div>
-                
-                <div class="form-group">
-                    <label for="app-name">App Name *</label>
-                    <input type="text" id="app-name" placeholder="Enter app name" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="app-version">Version *</label>
-                    <input type="text" id="app-version" placeholder="e.g., 1.0.0" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="bundle-id">Bundle ID *</label>
-                    <input type="text" id="bundle-id" placeholder="e.g., com.example.app" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="app-description">Description *</label>
-                    <textarea id="app-description" placeholder="Describe your app, its features, and requirements..." required></textarea>
-                </div>
-                
-                <div class="form-group">
-                    <label for="app-category">Category</label>
-                    <select id="app-category">
-                        <option value="utilities">Utilities</option>
-                        <option value="games">Games</option>
-                        <option value="tweaks">Tweaks</option>
-                        <option value="social">Social</option>
-                        <option value="productivity">Productivity</option>
-                        <option value="entertainment">Entertainment</option>
-                        <option value="other">Other</option>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label>Upload IPA File *</label>
-                    <div class="file-upload" id="file-upload">
-                        <div class="file-upload-icon">+</div>
-                        <p><strong>Drag & drop your .ipa file here</strong></p>
-                        <p style="font-size: 0.9em; color: #666; margin-top: 10px;">or click to browse</p>
-                        <input type="file" id="ipa-file" accept=".ipa">
-                    </div>
-                    <div id="file-info" class="file-info"></div>
-                </div>
-                
-                <div class="form-group">
-                    <label for="submitter-name">Your Name/Handle (Optional)</label>
-                    <input type="text" id="submitter-name" placeholder="Developer name or username">
-                </div>
-                
-                <button class="submit-btn" id="submit-btn" onclick="submitApp()">
-                    Submit App for Review
-                </button>
-                
-                <p style="color: #666; font-size: 0.9em; margin-top: 15px; text-align: center;">
-                    * Required fields. Apps will be reviewed before being published.
-                </p>
-            </div>
-        </div>
-        
-        <div class="footer">
-            <p><a href="https://discord.gg/WD7UfAkYz" target="_blank" style="color: #5865F2; text-decoration: none; font-weight: 600;">Join our Discord</a></p>
-        </div>
+<div class="app">
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <button class="active" onclick="showPanel('editor')">✏️</button>
+    <button onclick="showPanel('scriptblox')">☁️</button>
+    <button onclick="showPanel('saved')">📁</button>
+    <button onclick="showPanel('settings')">⚙️</button>
+  </div>
+
+  <!-- Main -->
+  <div class="main">
+    <div class="header">Parallax</div>
+
+    <!-- Disclaimer -->
+    <div class="panel active disclaimer" id="disclaimer">
+      <svg class="triangle" viewBox="0 0 24 24" fill="none" stroke="purple" stroke-width="1.5">
+        <path d="M12 2L22 20H2L12 2Z"/>
+      </svg>
+      <h2>Disclaimer</h2>
+      <p>
+        Use at your own risk.<br>
+        Parallax is not responsible for any bans or disciplinary action caused.
+      </p>
+      <button onclick="dismissDisclaimer()">Continue</button>
     </div>
 
-    <script>
-        // Tab switching
-        function switchTab(tab) {
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            
-            if (tab === 'browse') {
-                document.querySelector('.tab:first-child').classList.add('active');
-                document.getElementById('browse-tab').classList.add('active');
-            } else {
-                document.querySelector('.tab:last-child').classList.add('active');
-                document.getElementById('upload-tab').classList.add('active');
-            }
-        }
+    <!-- Editor -->
+    <div class="panel" id="editor">
+      <div class="editor-container">
+        <div class="editor" contenteditable spellcheck="false" oninput="highlight(this)">
+-- Parallax Executor
+print("Hello World")
+        </div>
+      </div>
+    </div>
 
-        // File upload handling
-        const fileUpload = document.getElementById('file-upload');
-        const fileInput = document.getElementById('ipa-file');
-        const fileInfo = document.getElementById('file-info');
+    <!-- ScriptBlox -->
+    <div class="panel scriptblox" id="scriptblox"></div>
 
-        fileUpload.addEventListener('click', () => fileInput.click());
+    <!-- Saved -->
+    <div class="panel" id="saved" style="padding:20px;color:var(--muted)">
+      Saved Scripts (placeholder)
+    </div>
 
-        fileUpload.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            fileUpload.classList.add('dragover');
-        });
+    <!-- Settings -->
+    <div class="panel settings" id="settings">
+      <div class="toggle"><span>Robux Purchases</span><div class="switch"></div></div>
+      <div class="toggle"><span>Script Anti-Scam</span><div class="switch"></div></div>
+      <div class="toggle"><span>Verify Teleports</span><div class="switch"></div></div>
+      <div class="toggle"><span>Anti Kick</span><div class="switch"></div></div>
+    </div>
 
-        fileUpload.addEventListener('dragleave', () => {
-            fileUpload.classList.remove('dragover');
-        });
+    <!-- Fake Execute Buttons -->
+    <div class="execute-bar">
+      <div class="exec-btn">▶️</div>
+      <div class="exec-btn">🗑️</div>
+    </div>
 
-        fileUpload.addEventListener('drop', (e) => {
-            e.preventDefault();
-            fileUpload.classList.remove('dragover');
-            
-            if (e.dataTransfer.files.length > 0) {
-                fileInput.files = e.dataTransfer.files;
-                handleFileSelect();
-            }
-        });
+  </div>
+</div>
 
-        fileInput.addEventListener('change', handleFileSelect);
+<script>
+function showPanel(id) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.sidebar button').forEach(b => b.classList.remove('active'));
+}
 
-        function handleFileSelect() {
-            const file = fileInput.files[0];
-            if (file) {
-                const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
-                fileInfo.innerHTML = `File selected: <strong>${file.name}</strong> (${sizeMB} MB)`;
-                fileInfo.style.display = 'block';
-            }
-        }
+function dismissDisclaimer() {
+  document.getElementById('disclaimer').style.display = 'none';
+  showPanel('editor');
+}
 
-        // Form submission
-        async function submitApp() {
-            const appName = document.getElementById('app-name').value.trim();
-            const version = document.getElementById('app-version').value.trim();
-            const bundleId = document.getElementById('bundle-id').value.trim();
-            const description = document.getElementById('app-description').value.trim();
-            const category = document.getElementById('app-category').value;
-            const submitter = document.getElementById('submitter-name').value.trim();
-            const file = fileInput.files[0];
+function highlight(el) {
+  let text = el.innerText
+    .replace(/(print|function|end|local)/g, '<span class="keyword">$1</span>')
+    .replace(/(".*?")/g, '<span class="string">$1</span>')
+    .replace(/(--.*)/g, '<span class="comment">$1</span>');
+  el.innerHTML = text;
+  placeCaretAtEnd(el);
+}
 
-            const alert = document.getElementById('alert');
-            const submitBtn = document.getElementById('submit-btn');
+function placeCaretAtEnd(el) {
+  const range = document.createRange();
+  range.selectNodeContents(el);
+  range.collapse(false);
+  const sel = window.getSelection();
+  sel.removeAllRanges();
+  sel.addRange(range);
+}
 
-            // Validation
-            if (!appName || !version || !bundleId || !description || !file) {
-                showAlert('Please fill in all required fields and select an IPA file.', 'error');
-                return;
-            }
-
-            if (!file.name.endsWith('.ipa')) {
-                showAlert('Please upload a valid .ipa file.', 'error');
-                return;
-            }
-
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Submitting...';
-
-            // Here you would send the data to your backend
-            // For now, we'll simulate a submission
-            setTimeout(() => {
-                showAlert('App submitted successfully! It will be reviewed and published soon.', 'success');
-                resetForm();
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Submit App for Review';
-            }, 2000);
-        }
-
-        function showAlert(message, type) {
-            const alert = document.getElementById('alert');
-            alert.textContent = message;
-            alert.className = `alert ${type}`;
-            alert.style.display = 'block';
-            
-            setTimeout(() => {
-                alert.style.display = 'none';
-            }, 5000);
-        }
-
-        function resetForm() {
-            document.getElementById('app-name').value = '';
-            document.getElementById('app-version').value = '';
-            document.getElementById('bundle-id').value = '';
-            document.getElementById('app-description').value = '';
-            document.getElementById('submitter-name').value = '';
-            fileInput.value = '';
-            fileInfo.style.display = 'none';
-        }
-
-        // Load apps (you'll need to implement this with your backend)
-        function loadApps() {
-            // This would fetch from your database/storage
-            // For now, it shows the "no apps" message
-        }
-
-        loadApps();
-    </script>
+/* ScriptBlox API */
+fetch("https://scriptblox.com/api/script/fetch?page=1")
+  .then(res => res.json())
+  .then(data => {
+    const container = document.getElementById("scriptblox");
+    data.result.scripts.forEach(s => {
+      const div = document.createElement("div");
+      div.className = "script";
+      div.innerHTML = `<strong>${s.title}</strong><br><small>${s.game?.name || "Universal"}</small>`;
+      div.onclick = () => {
+        showPanel('editor');
+        document.querySelector('.editor').innerText = s.script || "-- Unable to load script";
+      };
+      container.appendChild(div);
+    });
+  });
+</script>
 </body>
 </html>
