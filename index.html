@@ -98,10 +98,14 @@ html,body{
   display:none;
   overflow:hidden;
   animation:fade .25s ease;
+  transition:opacity .3s, transform .3s;
+  transform:translateY(6px);
 }
 .panel.active{
   display:flex;
   flex-direction:column;
+  opacity:1;
+  transform:translateY(0);
 }
 @keyframes fade{
   from{opacity:0;transform:translateY(6px)}
@@ -209,7 +213,7 @@ textarea{
 }
 .results{
   flex:1;
-  overflow:auto;
+  overflow:auto; /* fixed scrolling */
   display:grid;
   grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
   gap:12px;
@@ -341,6 +345,8 @@ textarea{
   display:flex;
   flex-direction:column;
   gap:10px;
+  max-height:70vh;
+  overflow-y:auto; /* ensure scrolling works */
 }
 #bloxOverlayContent img{
   width:100%;
@@ -362,6 +368,20 @@ textarea{
 }
 #bloxOverlayContent .overlay-actions button{
   flex:1;
+}
+
+/* ================= Credits ================= */
+.credits{
+  font-size:12px;
+  color:var(--muted);
+  margin-top:14px;
+}
+.credits a{
+  color:var(--accent);
+  text-decoration:none;
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
 }
 </style>
 </head>
@@ -444,6 +464,15 @@ print("Hello world")</textarea>
         <div class="toggle-row"><div class="toggle on"></div></div>
       </div>
 
+      <!-- Credits Section -->
+      <div class="credits">
+        <div>Created by <a href="https://github.com/armorixteam">Armorix Team ❤️ (GitHub)</a></div>
+        <div>ZodaciOS - UI Development & Reverse Engineering <a href="https://github.com/ZodaciOS">GitHub</a></div>
+        <div>Nyxolz - UI Development <a href="https://github.com/Nyxolz">GitHub</a></div>
+        <div>Contributors: (empty)</div>
+        <div>Shout out to: Scriptblox</div>
+      </div>
+
     </div>
 </div>
 
@@ -461,9 +490,7 @@ print("Hello world")</textarea>
 <div class="modal" id="bloxModal">
   <div class="modal-box">
     <span class="close-btn" onclick="bloxModal.classList.remove('active')">×</span>
-    <div id="bloxOverlayContent">
-      <!-- Dynamic overlay content populated by JS -->
-    </div>
+    <div id="bloxOverlayContent"></div>
   </div>
 </div>
 
@@ -716,7 +743,6 @@ function createTab(title, content){
   renderTabs();
   setActiveTab(idx);
 }
-
 </script>
 
 </body>
