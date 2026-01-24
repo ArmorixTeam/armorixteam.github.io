@@ -315,6 +315,14 @@ textarea{
   padding:10px;
   color:#fff;
 }
+.modal-box button{
+  padding:10px;
+  border-radius:10px;
+  border:none;
+  background:var(--accent);
+  color:#fff;
+  cursor:pointer;
+}
 </style>
 </head>
 
@@ -395,12 +403,11 @@ print("Hello world")</textarea>
         <p>Advanced Luau syntax highlighting. Always enabled.</p>
         <div class="toggle-row"><div class="toggle on"></div></div>
       </div>
-    </div>
 
-  </div>
+    </div>
 </div>
 
-<!-- Modal -->
+<!-- Save Modal -->
 <div class="modal" id="modal">
   <div class="modal-box">
     <input id="saveTitle" placeholder="Script title">
@@ -409,14 +416,24 @@ print("Hello world")</textarea>
   </div>
 </div>
 
+<!-- ScriptBlox Action Modal -->
+<div class="modal" id="bloxModal">
+  <div class="modal-box">
+    <b>Select an option to do with the script.</b>
+    <button id="loadEditor">Load in script editor</button>
+    <button id="loadSaved">Load in saved scripts</button>
+    <button id="copyClipboard">Copy script to clipboard</button>
+  </div>
+</div>
+
 <script>
-/* Editor sync */
+/* ===== Editor & Highlight Sync ===== */
 const code=document.getElementById("code");
 const hl=document.getElementById("hl");
 code.addEventListener("input",()=>hl.textContent=code.value);
 hl.textContent=code.value;
 
-/* Panels */
+/* ===== Panels ===== */
 document.querySelectorAll(".nav-btn").forEach(b=>{
   b.onclick=()=>{
     document.querySelectorAll(".nav-btn").forEach(n=>n.classList.remove("active"));
@@ -427,12 +444,12 @@ document.querySelectorAll(".nav-btn").forEach(b=>{
   };
 });
 
-/* Toggles */
+/* ===== Toggles ===== */
 document.querySelectorAll(".toggle").forEach(t=>{
   t.onclick=()=>t.classList.toggle("on");
 });
 
-/* ===== Saved scripts (unchanged) ===== */
+/* ===== Saved Scripts ===== */
 let editIndex=null;
 function openModal(index=null){
   editIndex=index;
@@ -481,86 +498,67 @@ function del(i){
   loadSaved();
 }
 
-/* ================= ScriptBlox FIXED ================= */
-
+/* ===== ScriptBlox API + Overlay ===== */
 let sbPage=1,sbLoading=false,sbQuery="";
 const imgCache=new Map();
+let selectedScript="";
 
 async function loadBlox(reset=false){
-  if(sbLoading)return;
+  if(sbLoading) return;
   sbLoading=true;
-  if(reset){
-    sbPage=1;
-    results.innerHTML="";
-  }
+  if(reset){ sbPage=1; results.innerHTML=""; }
   try{
     const r=await fetch(
       `https://scriptblox.com/api/script/search?q=${encodeURIComponent(sbQuery)}&page=${sbPage}&max=20`
     );
     const j=await r.json();
-
-    const scripts =
-      j?.result?.scripts ||
-      j?.scripts ||
-      [];
-
+    const scripts = j?.result?.scripts || j?.scripts || [];
     if(!scripts.length){
-      if(sbPage===1){
-        results.innerHTML="<div style='opacity:.6'>No results</div>";
-      }
+      if(sbPage===1) results.innerHTML="<div style='opacity:.6'>No results</div>";
       sbLoading=false;
       return;
     }
-
     scripts.forEach(s=>{
       const c=document.createElement("div");
       c.className="card";
-
       if(s.image){
         if(imgCache.has(s.image)){
-          const i=new Image();
-          i.src=imgCache.get(s.image);
-          c.appendChild(i);
+          const i=new Image(); i.src=imgCache.get(s.image); c.appendChild(i);
         }else{
-          fetch(s.image)
-            .then(r=>r.blob())
-            .then(b=>{
-              const u=URL.createObjectURL(b);
-              imgCache.set(s.image,u);
-              const i=new Image();
-              i.src=u;
-              c.appendChild(i);
-            });
+          fetch(s.image).then(r=>r.blob()).then(b=>{
+            const u=URL.createObjectURL(b);
+            imgCache.set(s.image,u);
+            const i=new Image();
+            i.src=u; c.appendChild(i);
+          });
         }
       }
-
       c.innerHTML+=`<b>${s.title || "Untitled Script"}</b>`;
-      c.onclick=()=>{
-        code.value=s.script || "";
-        hl.textContent=code.value;
-      };
+      c.onclick=()=>{ selectedScript=s.script||""; bloxModal.classList.add("active"); };
       results.appendChild(c);
     });
-
     sbPage++;
-  }catch{
-    if(sbPage===1){
-      results.innerHTML="<div style='opacity:.6'>Failed to load ScriptBlox</div>";
-    }
-  }
+  }catch{ if(sbPage===1) results.innerHTML="<div style='opacity:.6'>Failed to load ScriptBlox</div>"; }
   sbLoading=false;
 }
 
-search.oninput=()=>{
-  sbQuery=search.value.trim();
-  loadBlox(true);
-};
+search.oninput=()=>{ sbQuery=search.value.trim(); loadBlox(true); };
+results.onscroll=()=>{ if(results.scrollTop+results.clientHeight>=results.scrollHeight-200){ loadBlox(); } };
 
-results.onscroll=()=>{
-  if(results.scrollTop+results.clientHeight>=results.scrollHeight-200){
-    loadBlox();
-  }
+/* ===== ScriptBlox Modal Actions ===== */
+const loadEditor=document.getElementById("loadEditor");
+const loadSavedBtn=document.getElementById("loadSaved");
+const copyClipboard=document.getElementById("copyClipboard");
+const bloxModal=document.getElementById("bloxModal");
+
+loadEditor.onclick=()=>{ code.value=selectedScript; hl.textContent=code.value; bloxModal.classList.remove("active"); };
+loadSavedBtn.onclick=()=>{
+  const a=JSON.parse(localStorage.getItem("saved")||"[]");
+  a.push({t:"ScriptBlox Script",c:selectedScript});
+  localStorage.setItem("saved",JSON.stringify(a));
+  bloxModal.classList.remove("active");
 };
+copyClipboard.onclick=()=>{ navigator.clipboard.writeText(selectedScript); bloxModal.classList.remove("active"); };
 </script>
 
 </body>
