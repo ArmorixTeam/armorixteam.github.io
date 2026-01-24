@@ -88,6 +88,8 @@ html,body{
   display:flex;
   flex-direction:column;
   gap:14px;
+  min-height:0;
+  overflow:hidden;
 }
 .header{
   font-size:22px;
@@ -95,6 +97,7 @@ html,body{
   display:flex;
   align-items:center;
   gap:12px;
+  flex-shrink:0;
 }
 .header-logo{
   width:32px;
@@ -110,9 +113,10 @@ html,body{
   border-radius:18px;
   padding:16px;
   display:none;
-  overflow:hidden;
   opacity:0;
   transform:translateY(6px);
+  min-height:0;
+  overflow:hidden;
 }
 .panel.active{
   display:flex;
@@ -222,10 +226,6 @@ textarea{
 }
 
 /* ================= ScriptBlox ================= */
-#blox{
-  display:flex;
-  flex-direction:column;
-}
 .search{
   padding:12px;
   border-radius:14px;
@@ -243,6 +243,7 @@ textarea{
   padding-bottom:10px;
   overflow-y:auto;
   overflow-x:hidden;
+  min-height:0;
 }
 .card{
   background:#121326;
@@ -262,6 +263,7 @@ textarea{
   display:flex;
   flex-direction:column;
   gap:10px;
+  min-height:0;
 }
 .saved-item{
   background:#121326;
@@ -277,6 +279,9 @@ textarea{
 }
 
 /* ================= Settings ================= */
+#settings{
+  overflow-y:auto;
+}
 .setting{
   padding:14px;
   border-bottom:1px solid var(--border);
@@ -401,6 +406,7 @@ textarea{
   gap:16px;
   font-size:14px;
   padding:0;
+  min-height:0;
 }
 .credits-section{
   background:linear-gradient(135deg,#121326,#0d0e17);
