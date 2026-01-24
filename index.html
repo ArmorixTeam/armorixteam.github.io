@@ -222,6 +222,7 @@ textarea{
   display:flex;
   flex-direction:column;
   gap:6px;
+  cursor:pointer;
 }
 
 /* ================= Saved ================= */
@@ -296,6 +297,7 @@ textarea{
   display:none;
   align-items:center;
   justify-content:center;
+  z-index:999;
 }
 .modal.active{display:flex}
 .modal-box{
@@ -303,7 +305,7 @@ textarea{
   border-radius:18px;
   padding:16px;
   width:90%;
-  max-width:420px;
+  max-width:480px;
   display:flex;
   flex-direction:column;
   gap:10px;
@@ -332,6 +334,34 @@ textarea{
   font-size:16px;
   font-weight:bold;
   cursor:pointer;
+}
+
+/* ScriptBlox Overlay Custom Layout */
+#bloxOverlayContent{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+#bloxOverlayContent img{
+  width:100%;
+  border-radius:12px;
+  max-height:180px;
+  object-fit:cover;
+}
+#bloxOverlayContent b{
+  font-size:18px;
+}
+#bloxOverlayContent p{
+  font-size:13px;
+  opacity:.8;
+}
+#bloxOverlayContent .overlay-actions{
+  display:flex;
+  gap:10px;
+  justify-content:flex-end;
+}
+#bloxOverlayContent .overlay-actions button{
+  flex:1;
 }
 </style>
 </head>
@@ -431,10 +461,9 @@ print("Hello world")</textarea>
 <div class="modal" id="bloxModal">
   <div class="modal-box">
     <span class="close-btn" onclick="bloxModal.classList.remove('active')">×</span>
-    <b>Select an option to do with the script.</b>
-    <button id="loadEditor">Load in script editor</button>
-    <button id="loadSaved">Load in saved scripts</button>
-    <button id="copyClipboard">Copy script to clipboard</button>
+    <div id="bloxOverlayContent">
+      <!-- Dynamic overlay content populated by JS -->
+    </div>
   </div>
 </div>
 
@@ -571,10 +600,10 @@ code.addEventListener("input",()=>{
 
 renderTabs();
 
-/* ScriptBlox API + Overlay */
+/* ===== ScriptBlox API + Overlay ===== */
 let sbPage=1,sbLoading=false,sbQuery="";
 const imgCache=new Map();
-let selectedScript="", selectedTitle="";
+let selectedScriptData=null;
 
 async function loadBlox(reset=false){
   if(sbLoading) return;
@@ -588,12 +617,11 @@ async function loadBlox(reset=false){
     scripts.forEach(s=>{
       const c=document.createElement("div");
       c.className="card";
-      if(s.image){
-        if(imgCache.has(s.image)){ const i=new Image(); i.src=imgCache.get(s.image); c.appendChild(i); }
-        else{ fetch(s.image).then(r=>r.blob()).then(b=>{ const u=URL.createObjectURL(b); imgCache.set(s.image,u); const i=new Image(); i.src=u; c.appendChild(i); }); }
-      }
-      c.innerHTML+=`<b>${s.title || "Untitled Script"}</b>`;
-      c.onclick=()=>{ selectedScript=s.script||""; selectedTitle=s.title||"Untitled Script"; bloxModal.classList.add("active"); };
+      c.innerHTML=`<b>${s.title || "Untitled Script"}</b>`;
+      c.onclick=()=>{
+        selectedScriptData = s;
+        showBloxOverlay(s);
+      };
       results.appendChild(c);
     });
     sbPage++;
@@ -604,14 +632,81 @@ async function loadBlox(reset=false){
 search.oninput=()=>{ sbQuery=search.value.trim(); loadBlox(true); };
 results.onscroll=()=>{ if(results.scrollTop+results.clientHeight>=results.scrollHeight-200){ loadBlox(); } };
 
-const loadEditor=document.getElementById("loadEditor");
-const loadSavedBtn=document.getElementById("loadSaved");
-const copyClipboard=document.getElementById("copyClipboard");
 const bloxModal=document.getElementById("bloxModal");
+const bloxOverlayContent=document.getElementById("bloxOverlayContent");
 
-loadEditor.onclick=()=>{ createTab(selectedTitle,selectedScript); bloxModal.classList.remove("active"); };
-loadSavedBtn.onclick=()=>{ const a=JSON.parse(localStorage.getItem("saved")||"[]"); a.push({t:selectedTitle,c:selectedScript}); localStorage.setItem("saved",JSON.stringify(a)); loadSaved(); bloxModal.classList.remove("active"); };
-copyClipboard.onclick=()=>{ navigator.clipboard.writeText(selectedScript); bloxModal.classList.remove("active"); };
+function showBloxOverlay(s){
+  bloxOverlayContent.innerHTML="";
+  if(s.image){
+    const img=new Image();
+    img.src=s.image;
+    bloxOverlayContent.appendChild(img);
+  }
+  const title=document.createElement("b");
+  title.textContent = s.title || "Untitled Script";
+  bloxOverlayContent.appendChild(title);
+
+  const game=document.createElement("p");
+  game.textContent = "Game: " + (s.game || "Unknown");
+  bloxOverlayContent.appendChild(game);
+
+  const verified=document.createElement("p");
+  verified.textContent = "Verified: " + (s.verified ? "Yes" : "No");
+  bloxOverlayContent.appendChild(verified);
+
+  if(s.description){
+    const desc=document.createElement("p");
+    desc.textContent = s.description;
+    bloxOverlayContent.appendChild(desc);
+  }
+
+  const codeEl=document.createElement("textarea");
+  codeEl.rows=6;
+  codeEl.readOnly=true;
+  codeEl.style.width="100%";
+  codeEl.value = s.script || "";
+  bloxOverlayContent.appendChild(codeEl);
+
+  const actions=document.createElement("div");
+  actions.className="overlay-actions";
+  const loadBtn=document.createElement("button");
+  loadBtn.textContent="Load in script editor";
+  loadBtn.onclick=()=>{
+    createTab(s.title||"Untitled Script", s.script||"");
+    bloxModal.classList.remove("active");
+  };
+  const saveBtn=document.createElement("button");
+  saveBtn.textContent="Load in saved scripts";
+  saveBtn.onclick=()=>{
+    const arr=JSON.parse(localStorage.getItem("saved")||"[]");
+    arr.push({t:s.title||"Untitled Script", c:s.script||""});
+    localStorage.setItem("saved",JSON.stringify(arr));
+    loadSaved();
+    bloxModal.classList.remove("active");
+  };
+  const copyBtn=document.createElement("button");
+  copyBtn.textContent="Copy to clipboard";
+  copyBtn.onclick=()=>{
+    navigator.clipboard.writeText(s.script||"");
+    bloxModal.classList.remove("active");
+  };
+  actions.appendChild(loadBtn);
+  actions.appendChild(saveBtn);
+  actions.appendChild(copyBtn);
+
+  bloxOverlayContent.appendChild(actions);
+
+  bloxModal.classList.add("active");
+}
+
+/* ===== Tab Creation Function Used By ScriptBlox ===== */
+function createTab(title, content){
+  const idx = tabsData.length;
+  tabsData.push({title, content});
+  renderTabs();
+  setActiveTab(idx);
+}
+
 </script>
 
 </body>
