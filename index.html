@@ -439,14 +439,13 @@ print("Hello world")</textarea>
 </div>
 
 <script>
-/* ===== Editor & Highlight Sync ===== */
 const code=document.getElementById("code");
 const hl=document.getElementById("hl");
 const tabs=document.getElementById("tabs");
 code.addEventListener("input",()=>hl.textContent=code.value);
 hl.textContent=code.value;
 
-/* ===== Panels ===== */
+/* Panels */
 document.querySelectorAll(".nav-btn").forEach(b=>{
   b.onclick=()=>{
     document.querySelectorAll(".nav-btn").forEach(n=>n.classList.remove("active"));
@@ -457,12 +456,12 @@ document.querySelectorAll(".nav-btn").forEach(b=>{
   };
 });
 
-/* ===== Toggles ===== */
+/* Toggles */
 document.querySelectorAll(".toggle").forEach(t=>{
   t.onclick=()=>t.classList.toggle("on");
 });
 
-/* ===== Saved Scripts ===== */
+/* Saved Scripts */
 let editIndex=null;
 function openModal(index=null){
   editIndex=index;
@@ -511,36 +510,45 @@ function del(i){
   loadSaved();
 }
 
-/* ===== Tab Functions ===== */
-function switchTab(index){
-  const arr=JSON.parse(localStorage.getItem("saved")||"[]");
-  const script=arr[index];
-  if(!script) return;
+/* ===== Tab Functions (EVERY TAB CLOSABLE) ===== */
+function createTab(title, content=""){
+  const newTab = document.createElement("div");
+  newTab.className = "tab active";
+  newTab.innerHTML = `${title} <span class="x">×</span>`;
+  tabs.querySelectorAll(".tab:not(:last-child)").forEach(t => t.classList.remove("active"));
+  tabs.insertBefore(newTab, tabs.querySelector(".tab:last-child"));
+  code.value = content;
+  hl.textContent = content;
 
-  const newTab=document.createElement("div");
-  newTab.className="tab active";
-  newTab.innerHTML=`${script.t} <span class="x">×</span>`;
-  tabs.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
-  tabs.insertBefore(newTab,tabs.querySelector(".tab:last-child"));
-  code.value=script.c;
-  hl.textContent=code.value;
-
-  const xBtn=newTab.querySelector(".x");
-  xBtn.onclick=e=>{
+  const xBtn = newTab.querySelector(".x");
+  xBtn.onclick = e => {
     e.stopPropagation();
     newTab.remove();
-    const firstTab=tabs.querySelector(".tab:not(:last-child)");
+    const firstTab = tabs.querySelector(".tab:not(:last-child)");
     if(firstTab){
       firstTab.classList.add("active");
-      const idx=Array.from(tabs.children).indexOf(firstTab);
-      if(arr[idx]) { code.value=arr[idx].c; hl.textContent=code.value; }
+      code.value = firstTab.dataset.content || "";
+      hl.textContent = code.value;
     }
   };
 
-  newTab.onclick=()=>{ tabs.querySelectorAll(".tab").forEach(t=>t.classList.remove("active")); newTab.classList.add("active"); code.value=script.c; hl.textContent=script.c; };
+  newTab.onclick = () => {
+    tabs.querySelectorAll(".tab:not(:last-child)").forEach(t => t.classList.remove("active"));
+    newTab.classList.add("active");
+    code.value = content;
+    hl.textContent = content;
+  };
+
+  newTab.dataset.content = content;
 }
 
-/* ===== ScriptBlox API + Overlay ===== */
+// "+" tab new tab
+tabs.querySelector(".tab:last-child").onclick = () => {
+  const count = tabs.querySelectorAll(".tab:not(:last-child)").length + 1;
+  createTab(`Script ${count}`, "");
+};
+
+/* ScriptBlox API + Overlay */
 let sbPage=1,sbLoading=false,sbQuery="";
 const imgCache=new Map();
 let selectedScript="", selectedTitle="";
@@ -573,64 +581,15 @@ async function loadBlox(reset=false){
 search.oninput=()=>{ sbQuery=search.value.trim(); loadBlox(true); };
 results.onscroll=()=>{ if(results.scrollTop+results.clientHeight>=results.scrollHeight-200){ loadBlox(); } };
 
-/* ===== ScriptBlox Modal Actions ===== */
 const loadEditor=document.getElementById("loadEditor");
 const loadSavedBtn=document.getElementById("loadSaved");
 const copyClipboard=document.getElementById("copyClipboard");
 const bloxModal=document.getElementById("bloxModal");
 
-loadEditor.onclick=()=>{
-  createTabFromScript(selectedTitle,selectedScript);
-  bloxModal.classList.remove("active");
-};
-loadSavedBtn.onclick=()=>{
-  const a=JSON.parse(localStorage.getItem("saved")||"[]");
-  a.push({t:selectedTitle,c:selectedScript});
-  localStorage.setItem("saved",JSON.stringify(a));
-  loadSaved();
-  bloxModal.classList.remove("active");
-};
+loadEditor.onclick=()=>{ createTab(selectedTitle,selectedScript); bloxModal.classList.remove("active"); };
+loadSavedBtn.onclick=()=>{ const a=JSON.parse(localStorage.getItem("saved")||"[]"); a.push({t:selectedTitle,c:selectedScript}); localStorage.setItem("saved",JSON.stringify(a)); loadSaved(); bloxModal.classList.remove("active"); };
 copyClipboard.onclick=()=>{ navigator.clipboard.writeText(selectedScript); bloxModal.classList.remove("active"); };
 
-/* ===== Helper for creating a tab from ScriptBlox ===== */
-function createTabFromScript(title,script){
-  const newTab=document.createElement("div");
-  newTab.className="tab active";
-  newTab.innerHTML=`${title} <span class="x">×</span>`;
-  tabs.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
-  tabs.insertBefore(newTab,tabs.querySelector(".tab:last-child"));
-  code.value=script;
-  hl.textContent=code.value;
-
-  const xBtn=newTab.querySelector(".x");
-  xBtn.onclick=e=>{
-    e.stopPropagation();
-    newTab.remove();
-    const firstTab=tabs.querySelector(".tab:not(:last-child)");
-    if(firstTab){ firstTab.classList.add("active"); code.value=script; hl.textContent=script; }
-  };
-
-  newTab.onclick=()=>{ tabs.querySelectorAll(".tab").forEach(t=>t.classList.remove("active")); newTab.classList.add("active"); code.value=script; hl.textContent=script; };
-}
-
-/* ===== New Tab + "+" button ===== */
-tabs.querySelector(".tab:last-child").onclick=()=>{
-  const count=tabs.querySelectorAll(".tab:not(:last-child)").length+1;
-  const newTab=document.createElement("div");
-  newTab.className="tab active";
-  newTab.innerHTML=`Script ${count} <span class="x">×</span>`;
-  tabs.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
-  tabs.insertBefore(newTab,tabs.querySelector(".tab:last-child"));
-  code.value=""; hl.textContent="";
-  const xBtn=newTab.querySelector(".x");
-  xBtn.onclick=e=>{
-    e.stopPropagation();
-    newTab.remove();
-    const firstTab=tabs.querySelector(".tab:not(:last-child)");
-    if(firstTab){ firstTab.classList.add("active"); code.value=""; hl.textContent=""; }
-  };
-  newTab.onclick=()=>{ tabs.querySelectorAll(".tab").forEach(t=>t.classList.remove("active")); newTab.classList.add("active"); code.value=""; hl.textContent=""; };
-};
 </script>
 
 </body>
