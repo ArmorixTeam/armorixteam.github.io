@@ -637,17 +637,24 @@ const bloxOverlayContent=document.getElementById("bloxOverlayContent");
 
 function showBloxOverlay(s){
   bloxOverlayContent.innerHTML="";
+  bloxOverlayContent.style.maxHeight = "70vh";      // Fix scroll
+  bloxOverlayContent.style.overflowY = "auto";
+
   if(s.image){
     const img=new Image();
     img.src=s.image;
     bloxOverlayContent.appendChild(img);
   }
+
   const title=document.createElement("b");
   title.textContent = s.title || "Untitled Script";
   bloxOverlayContent.appendChild(title);
 
   const game=document.createElement("p");
-  game.textContent = "Game: " + (s.game || "Unknown");
+  let gameName = "Unknown";
+  if(typeof s.game === "string") gameName = s.game;
+  else if(s.game && s.game.name) gameName = s.game.name;
+  game.textContent = "Game: " + gameName;
   bloxOverlayContent.appendChild(game);
 
   const verified=document.createElement("p");
@@ -669,12 +676,14 @@ function showBloxOverlay(s){
 
   const actions=document.createElement("div");
   actions.className="overlay-actions";
+
   const loadBtn=document.createElement("button");
   loadBtn.textContent="Load in script editor";
   loadBtn.onclick=()=>{
     createTab(s.title||"Untitled Script", s.script||"");
     bloxModal.classList.remove("active");
   };
+
   const saveBtn=document.createElement("button");
   saveBtn.textContent="Load in saved scripts";
   saveBtn.onclick=()=>{
@@ -684,16 +693,17 @@ function showBloxOverlay(s){
     loadSaved();
     bloxModal.classList.remove("active");
   };
+
   const copyBtn=document.createElement("button");
   copyBtn.textContent="Copy to clipboard";
   copyBtn.onclick=()=>{
     navigator.clipboard.writeText(s.script||"");
     bloxModal.classList.remove("active");
   };
+
   actions.appendChild(loadBtn);
   actions.appendChild(saveBtn);
   actions.appendChild(copyBtn);
-
   bloxOverlayContent.appendChild(actions);
 
   bloxModal.classList.add("active");
