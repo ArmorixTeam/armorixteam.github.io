@@ -129,18 +129,32 @@ html,body{
   display:flex;
   gap:8px;
   margin-bottom:10px;
+  overflow-x:auto;
+  scrollbar-width:thin;
+  scrollbar-color:var(--accent) transparent;
+}
+.editor-tabs::-webkit-scrollbar{
+  height:6px;
+}
+.editor-tabs::-webkit-scrollbar-thumb{
+  background:var(--accent);
+  border-radius:3px;
 }
 .tab{
   background:#1b1d30;
   padding:6px 12px;
   border-radius:10px;
   font-size:13px;
-  cursor:pointer;
+  cursor:move;
   display:flex;
   gap:6px;
   align-items:center;
+  white-space:nowrap;
+  flex-shrink:0;
+  user-select:none;
 }
 .tab.active{background:var(--accentSoft)}
+.tab.dragging{opacity:0.5}
 .tab .x{
   opacity:.6;
   font-size:12px;
@@ -208,6 +222,10 @@ textarea{
 }
 
 /* ================= ScriptBlox ================= */
+#blox{
+  display:flex;
+  flex-direction:column;
+}
 .search{
   padding:12px;
   border-radius:14px;
@@ -224,7 +242,7 @@ textarea{
   gap:12px;
   padding-bottom:10px;
   overflow-y:auto;
-  min-height:0;
+  overflow-x:hidden;
 }
 .card{
   background:#121326;
@@ -464,16 +482,16 @@ textarea{
 
   <div class="sidebar-wrap">
     <div class="sidebar">
-      <div class="nav-btn active" data-panel="editor"><img src="IMG_1105.png" alt="Editor"></div>
-      <div class="nav-btn" data-panel="blox"><img src="IMG_1106.png" alt="ScriptBlox"></div>
-      <div class="nav-btn" data-panel="saved"><img src="IMG_1107.png" alt="Saved"></div>
-      <div class="nav-btn" data-panel="settings"><img src="IMG_1108.png" alt="Settings"></div>
-      <div class="nav-btn" data-panel="credits"><img src="IMG_1104.png" alt="Credits"></div>
+      <div class="nav-btn active" data-panel="editor"><img src="logo1.jpeg" alt="Editor"></div>
+      <div class="nav-btn" data-panel="blox"><img src="logo2.jpeg" alt="ScriptBlox"></div>
+      <div class="nav-btn" data-panel="saved"><img src="logo3.jpeg" alt="Saved"></div>
+      <div class="nav-btn" data-panel="settings"><img src="logo4.jpeg" alt="Settings"></div>
+      <div class="nav-btn" data-panel="credits"><img src="logo5.jpeg" alt="Credits"></div>
     </div>
   </div>
 
   <div class="main">
-    <div class="header">Parallax<img src="IMG_1093.png" alt="Logo" class="header-logo"></div>
+    <div class="header">Parallax<img src="logo.png" alt="Logo" class="header-logo"></div>
 
     <!-- Editor -->
     <div class="panel active" id="editor">
@@ -489,8 +507,9 @@ textarea{
 print("Hello world")</textarea>
         </div>
         <div class="editor-actions">
-          <div class="action-btn">▶</div>
-          <div class="action-btn">🗑</div>
+          <div class="action-btn" title="Execute">▶</div>
+          <div class="action-btn" title="Execute from Clipboard">📋</div>
+          <div class="action-btn" title="Clear">🗑</div>
         </div>
       </div>
     </div>
@@ -691,6 +710,9 @@ function del(i){
 /* ===== Tab Functions ===== */
 const tabsData = [{title:"Script 1", content:code.value}];
 
+let draggedTab = null;
+let draggedIndex = null;
+
 function renderTabs(){
   tabs.innerHTML = "";
   tabsData.forEach((t,i)=>{
@@ -698,6 +720,8 @@ function renderTabs(){
     tab.className = "tab" + (i === 0 ? " active" : "");
     tab.innerHTML = `${t.title} <span class="x">×</span>`;
     tab.dataset.index = i;
+    tab.draggable = true;
+    
     tab.querySelector(".x").onclick = e=>{
       e.stopPropagation();
       tabsData.splice(i,1);
@@ -707,7 +731,70 @@ function renderTabs(){
       renderTabs();
       setActiveTab(Math.min(i, tabsData.length-1));
     };
+    
     tab.onclick = ()=>{ setActiveTab(i); };
+    
+    tab.ondblclick = e=>{
+      if(e.target.classList.contains('x')) return;
+      const input = document.createElement('input');
+      input.value = t.title;
+      input.style.cssText = 'background:#0c0d15;border:1px solid var(--accent);border-radius:6px;padding:4px 8px;color:#fff;font-size:13px;width:100px';
+      tab.innerHTML = '';
+      tab.appendChild(input);
+      input.focus();
+      input.select();
+      
+      const finish = ()=>{
+        tabsData[i].title = input.value || `Script ${i+1}`;
+        renderTabs();
+        setActiveTab(i);
+      };
+      
+      input.onblur = finish;
+      input.onkeydown = e=>{
+        if(e.key === 'Enter') finish();
+        if(e.key === 'Escape'){ renderTabs(); setActiveTab(i); }
+      };
+    };
+    
+    tab.ondragstart = e=>{
+      draggedTab = tab;
+      draggedIndex = i;
+      tab.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+    };
+    
+    tab.ondragend = ()=>{
+      tab.classList.remove('dragging');
+      draggedTab = null;
+      draggedIndex = null;
+    };
+    
+    tab.ondragover = e=>{
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      if(draggedTab && draggedTab !== tab){
+        const targetIndex = Number(tab.dataset.index);
+        if(draggedIndex < targetIndex){
+          tab.parentNode.insertBefore(draggedTab, tab.nextSibling);
+        }else{
+          tab.parentNode.insertBefore(draggedTab, tab);
+        }
+      }
+    };
+    
+    tab.ondrop = e=>{
+      e.preventDefault();
+      const targetIndex = Number(tab.dataset.index);
+      if(draggedIndex !== null && draggedIndex !== targetIndex){
+        const item = tabsData.splice(draggedIndex, 1)[0];
+        const newIndex = draggedIndex < targetIndex ? targetIndex - 1 : targetIndex;
+        tabsData.splice(newIndex, 0, item);
+        renderTabs();
+        setActiveTab(newIndex);
+      }
+    };
+    
     tabs.appendChild(tab);
   });
   const plus = document.createElement("div");
