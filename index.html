@@ -129,6 +129,7 @@ html,body{
 .tab .x{
   opacity:.6;
   font-size:12px;
+  cursor:pointer;
 }
 
 .editor-wrap{
@@ -306,6 +307,7 @@ textarea{
   display:flex;
   flex-direction:column;
   gap:10px;
+  position:relative;
 }
 .modal-box input,
 .modal-box textarea{
@@ -321,6 +323,14 @@ textarea{
   border:none;
   background:var(--accent);
   color:#fff;
+  cursor:pointer;
+}
+.modal-box .close-btn{
+  position:absolute;
+  top:8px;
+  right:12px;
+  font-size:16px;
+  font-weight:bold;
   cursor:pointer;
 }
 </style>
@@ -410,6 +420,7 @@ print("Hello world")</textarea>
 <!-- Save Modal -->
 <div class="modal" id="modal">
   <div class="modal-box">
+    <span class="close-btn" onclick="modal.classList.remove('active')">×</span>
     <input id="saveTitle" placeholder="Script title">
     <textarea id="saveCode" rows="6" placeholder="Script code"></textarea>
     <button onclick="saveScript()">Save</button>
@@ -419,6 +430,7 @@ print("Hello world")</textarea>
 <!-- ScriptBlox Action Modal -->
 <div class="modal" id="bloxModal">
   <div class="modal-box">
+    <span class="close-btn" onclick="bloxModal.classList.remove('active')">×</span>
     <b>Select an option to do with the script.</b>
     <button id="loadEditor">Load in script editor</button>
     <button id="loadSaved">Load in saved scripts</button>
@@ -499,47 +511,39 @@ function del(i){
   loadSaved();
 }
 
-/* ===== Editor Tab Handling ===== */
+/* ===== Tab Functions ===== */
 function switchTab(index){
   const arr=JSON.parse(localStorage.getItem("saved")||"[]");
   const script=arr[index];
   if(!script) return;
-  // Create new tab
+
   const newTab=document.createElement("div");
   newTab.className="tab active";
   newTab.innerHTML=`${script.t} <span class="x">×</span>`;
-  // Remove active from others
   tabs.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
   tabs.insertBefore(newTab,tabs.querySelector(".tab:last-child"));
   code.value=script.c;
   hl.textContent=code.value;
-  // Handle X button
-  newTab.querySelector(".x").onclick=e=>{
+
+  const xBtn=newTab.querySelector(".x");
+  xBtn.onclick=e=>{
     e.stopPropagation();
     newTab.remove();
-    // If removing active tab, activate first tab
-    if(newTab.classList.contains("active") && tabs.querySelectorAll(".tab").length>1){
-      const firstTab=tabs.querySelector(".tab:not(.tab:last-child)");
+    const firstTab=tabs.querySelector(".tab:not(:last-child)");
+    if(firstTab){
       firstTab.classList.add("active");
       const idx=Array.from(tabs.children).indexOf(firstTab);
-      code.value=arr[idx].c;
-      hl.textContent=code.value;
+      if(arr[idx]) { code.value=arr[idx].c; hl.textContent=code.value; }
     }
   };
-  // Switch tab on click
-  newTab.onclick=()=>{ 
-    tabs.querySelectorAll(".tab").forEach(t=>t.classList.remove("active")); 
-    newTab.classList.add("active");
-    code.value=script.c; 
-    hl.textContent=code.value; 
-  };
+
+  newTab.onclick=()=>{ tabs.querySelectorAll(".tab").forEach(t=>t.classList.remove("active")); newTab.classList.add("active"); code.value=script.c; hl.textContent=script.c; };
 }
 
 /* ===== ScriptBlox API + Overlay ===== */
 let sbPage=1,sbLoading=false,sbQuery="";
 const imgCache=new Map();
-let selectedScript=null;
-let selectedTitle="";
+let selectedScript="", selectedTitle="";
 
 async function loadBlox(reset=false){
   if(sbLoading) return;
@@ -565,6 +569,7 @@ async function loadBlox(reset=false){
   }catch{ if(sbPage===1) results.innerHTML="<div style='opacity:.6'>Failed to load ScriptBlox</div>"; }
   sbLoading=false;
 }
+
 search.oninput=()=>{ sbQuery=search.value.trim(); loadBlox(true); };
 results.onscroll=()=>{ if(results.scrollTop+results.clientHeight>=results.scrollHeight-200){ loadBlox(); } };
 
@@ -575,7 +580,7 @@ const copyClipboard=document.getElementById("copyClipboard");
 const bloxModal=document.getElementById("bloxModal");
 
 loadEditor.onclick=()=>{
-  switchTabForScript(selectedTitle,selectedScript);
+  createTabFromScript(selectedTitle,selectedScript);
   bloxModal.classList.remove("active");
 };
 loadSavedBtn.onclick=()=>{
@@ -588,7 +593,7 @@ loadSavedBtn.onclick=()=>{
 copyClipboard.onclick=()=>{ navigator.clipboard.writeText(selectedScript); bloxModal.classList.remove("active"); };
 
 /* ===== Helper for creating a tab from ScriptBlox ===== */
-function switchTabForScript(title,script){
+function createTabFromScript(title,script){
   const newTab=document.createElement("div");
   newTab.className="tab active";
   newTab.innerHTML=`${title} <span class="x">×</span>`;
@@ -596,20 +601,37 @@ function switchTabForScript(title,script){
   tabs.insertBefore(newTab,tabs.querySelector(".tab:last-child"));
   code.value=script;
   hl.textContent=code.value;
-  newTab.querySelector(".x").onclick=e=>{
+
+  const xBtn=newTab.querySelector(".x");
+  xBtn.onclick=e=>{
     e.stopPropagation();
     newTab.remove();
-    const firstTab=tabs.querySelector(".tab:not(.tab:last-child)");
-    if(firstTab){
-      firstTab.classList.add("active");
-      const arr=JSON.parse(localStorage.getItem("saved")||"[]");
-      const idx=Array.from(tabs.children).indexOf(firstTab);
-      if(arr[idx]) code.value=arr[idx].c;
-      hl.textContent=code.value;
-    }
+    const firstTab=tabs.querySelector(".tab:not(:last-child)");
+    if(firstTab){ firstTab.classList.add("active"); code.value=script; hl.textContent=script; }
   };
+
   newTab.onclick=()=>{ tabs.querySelectorAll(".tab").forEach(t=>t.classList.remove("active")); newTab.classList.add("active"); code.value=script; hl.textContent=script; };
 }
+
+/* ===== New Tab + "+" button ===== */
+tabs.querySelector(".tab:last-child").onclick=()=>{
+  const count=tabs.querySelectorAll(".tab:not(:last-child)").length+1;
+  const newTab=document.createElement("div");
+  newTab.className="tab active";
+  newTab.innerHTML=`Script ${count} <span class="x">×</span>`;
+  tabs.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+  tabs.insertBefore(newTab,tabs.querySelector(".tab:last-child"));
+  code.value=""; hl.textContent="";
+  const xBtn=newTab.querySelector(".x");
+  xBtn.onclick=e=>{
+    e.stopPropagation();
+    newTab.remove();
+    const firstTab=tabs.querySelector(".tab:not(:last-child)");
+    if(firstTab){ firstTab.classList.add("active"); code.value=""; hl.textContent=""; }
+  };
+  newTab.onclick=()=>{ tabs.querySelectorAll(".tab").forEach(t=>t.classList.remove("active")); newTab.classList.add("active"); code.value=""; hl.textContent=""; };
+};
 </script>
+
 </body>
 </html>
