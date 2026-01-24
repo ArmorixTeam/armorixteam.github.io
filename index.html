@@ -213,10 +213,11 @@ textarea{
 }
 .results{
   flex:1;
-  overflow:auto; /* fixed scrolling */
+  overflow-y:auto; /* fixed scrolling */
   display:grid;
   grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
   gap:12px;
+  padding-bottom:10px;
 }
 .card{
   background:#121326;
@@ -373,12 +374,15 @@ textarea{
 /* ================= Credits ================= */
 .credits{
   flex:1;
-  overflow:auto;
+  overflow-y:auto;
   display:flex;
   flex-direction:column;
-  gap:6px;
-  font-size:13px;
+  gap:8px;
+  font-size:14px;
   color:var(--muted);
+  padding:10px;
+  background:linear-gradient(180deg,#101126,#14142d);
+  border-radius:14px;
 }
 .credits a{
   color:var(--accent);
@@ -386,6 +390,11 @@ textarea{
   display:inline-flex;
   align-items:center;
   gap:4px;
+  transition:.2s;
+}
+.credits a:hover{
+  text-decoration:underline;
+  color:#ff80ff;
 }
 </style>
 </head>
@@ -745,3 +754,4 @@ function createTab(title, content){
 
 </body>
 </html>
+
