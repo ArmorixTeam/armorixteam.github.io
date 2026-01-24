@@ -1,532 +1,366 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Parallax</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Parallax Executor UI</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
-:root{
-  --bg:#0a0a0f;
-  --panel:#10111a;
-  --panel2:#14152a;
-  --border:#26283a;
-  --text:#ffffff;
-  --muted:#9fa3c7;
-  --accent:#7c5cff;
-  --accentSoft:rgba(124,92,255,.25);
+:root {
+  --bg: #050507;
+  --panel: #0b0b10;
+  --border: #1c1c2a;
+  --text: #ffffff;
+  --muted: #9a9ab0;
+  --accent: #7a5cff;
 }
 
-*{box-sizing:border-box}
-html,body{
-  margin:0;
-  width:100%;
-  height:100%;
-  font-family:Inter,system-ui;
-  background:radial-gradient(1200px 600px at top,#15163a,#08080c);
-  color:var(--text);
-  overflow:hidden;
+* { box-sizing: border-box; }
+html, body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  font-family: Inter, system-ui;
+  background: radial-gradient(circle at top, #0d0d1c, #000);
+  color: var(--text);
+  overflow: hidden;
 }
 
-/* Layout */
-.app{
-  display:flex;
-  height:100%;
-  width:100%;
+/* ===== LAYOUT ===== */
+#app {
+  display: flex;
+  width: 100%;
+  height: 100%;
 }
 
-/* Sidebar */
-.sidebar-wrap{
-  width:96px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-.sidebar{
-  height:90%;
-  width:72px;
-  background:linear-gradient(180deg,#121321,#0c0d15);
-  border:1px solid var(--border);
-  border-radius:18px;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap:14px;
-  padding:16px 10px;
-  box-shadow:0 0 40px rgba(124,92,255,.15);
-}
-.nav-btn{
-  width:44px;
-  height:44px;
-  border-radius:12px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  cursor:pointer;
-  color:#cdd0ff;
-  transition:.25s;
-}
-.nav-btn.active,
-.nav-btn:hover{
-  background:var(--accentSoft);
-  box-shadow:0 0 20px rgba(124,92,255,.6);
-  color:#fff;
+#sidebar-wrapper {
+  width: 86px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-/* Main */
-.main{
-  flex:1;
-  padding:20px 20px 20px 0;
-  display:flex;
-  flex-direction:column;
-  gap:14px;
-}
-.header{
-  font-size:22px;
-  font-weight:700;
-}
-
-/* Panels */
-.panel{
-  flex:1;
-  background:linear-gradient(180deg,#131423,#0d0e17);
-  border:1px solid var(--border);
-  border-radius:18px;
-  padding:16px;
-  display:none;
-  overflow:hidden;
-  animation:fade .25s ease;
-}
-.panel.active{
-  display:flex;
-  flex-direction:column;
-}
-@keyframes fade{
-  from{opacity:0;transform:translateY(6px)}
-  to{opacity:1;transform:none}
+#sidebar {
+  height: 70%;
+  width: 64px;
+  background: linear-gradient(180deg, #0d0d1b, #07070f);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 22px;
 }
 
-/* ================= Editor ================= */
-
-.editor-tabs{
-  display:flex;
-  gap:8px;
-  margin-bottom:10px;
-}
-.tab{
-  background:#1b1d30;
-  padding:6px 12px;
-  border-radius:10px;
-  font-size:13px;
-  cursor:pointer;
-  display:flex;
-  gap:6px;
-  align-items:center;
-}
-.tab.active{background:var(--accentSoft)}
-.tab .x{
-  opacity:.6;
-  font-size:12px;
+.sidebar-btn {
+  width: 44px;
+  height: 44px;
+  margin: 0 auto;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: 0.25s;
 }
 
-.editor-wrap{
-  position:relative;
-  flex:1;
-  background:#0d0e16;
-  border-radius:14px;
-  border:1px solid var(--border);
-  overflow:hidden;
+.sidebar-btn.active {
+  background: rgba(122,92,255,0.18);
+  box-shadow: 0 0 18px rgba(122,92,255,0.35);
 }
 
-/* Scroll container */
-.editor-scroll{
-  position:absolute;
-  inset:0;
-  overflow:auto;
-  padding:14px;
+.sidebar-btn svg {
+  width: 22px;
+  height: 22px;
+  fill: white;
 }
 
-/* Highlight overlay */
-.highlight-layer{
-  position:absolute;
-  inset:14px;
-  pointer-events:none;
-  white-space:pre;
-  font-family:monospace;
-  font-size:14px;
-  line-height:1.5;
-  color:#ffffff;
+#content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  overflow: hidden;
 }
 
-/* Textarea */
-textarea{
-  position:relative;
-  width:100%;
-  min-height:100%;
-  background:transparent;
-  color:transparent;
-  caret-color:#ffffff;
-  border:none;
-  outline:none;
-  resize:none;
-  font-family:monospace;
-  font-size:14px;
-  line-height:1.5;
+/* ===== HEADER ===== */
+#header {
+  font-size: 26px;
+  font-weight: 700;
+  margin-bottom: 10px;
 }
 
-/* Editor buttons */
-.editor-actions{
-  position:absolute;
-  right:14px;
-  bottom:14px;
-  display:flex;
-  gap:10px;
-}
-.action-btn{
-  width:44px;
-  height:44px;
-  border-radius:14px;
-  background:var(--accent);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  cursor:pointer;
-  box-shadow:0 0 20px rgba(124,92,255,.6);
+/* ===== DISCLAIMER ===== */
+#disclaimer {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 26px;
+  text-align: center;
+  animation: fadeIn 0.4s ease;
 }
 
-/* iPad lowering */
-@media (min-width:768px){
-  .editor-wrap{margin-top:40px}
+#disclaimer svg {
+  width: 64px;
+  height: 64px;
+  fill: var(--accent);
 }
 
-/* ================= ScriptBlox ================= */
-
-.search{
-  padding:12px;
-  border-radius:14px;
-  border:1px solid var(--border);
-  background:#0c0d15;
-  color:#fff;
-  margin-bottom:12px;
-}
-.results{
-  flex:1;
-  overflow:auto;
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
-  gap:12px;
-}
-.card{
-  background:#121326;
-  border:1px solid var(--border);
-  border-radius:14px;
-  padding:10px;
-  display:flex;
-  flex-direction:column;
-  gap:6px;
+#disclaimer button {
+  margin-top: 18px;
+  background: var(--accent);
+  border: none;
+  padding: 12px 28px;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
 }
 
-/* ================= Saved ================= */
-
-.saved-list{
-  flex:1;
-  overflow:auto;
-  display:flex;
-  flex-direction:column;
-  gap:10px;
+/* ===== PANELS ===== */
+.panel {
+  flex: 1;
+  display: none;
+  overflow: hidden;
 }
-.saved-item{
-  background:#121326;
-  border:1px solid var(--border);
-  border-radius:14px;
-  padding:10px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-}
-.saved-actions button{
-  margin-left:6px;
+.panel.active {
+  display: flex;
+  flex-direction: column;
 }
 
-/* ================= Settings ================= */
-
-.setting{
-  padding:14px;
-  border-bottom:1px solid var(--border);
-}
-.setting h4{margin:0 0 4px 0}
-.setting p{margin:0;color:var(--muted);font-size:13px}
-
-.toggle-row{
-  display:flex;
-  justify-content:flex-end;
-  margin-top:6px;
-}
-.toggle{
-  width:44px;
-  height:24px;
-  border-radius:20px;
-  background:#2a2c40;
-  position:relative;
-  cursor:pointer;
-  transition:.25s;
-}
-.toggle::after{
-  content:"";
-  position:absolute;
-  width:18px;
-  height:18px;
-  top:3px;
-  left:3px;
-  border-radius:50%;
-  background:#fff;
-  transition:.25s;
-}
-.toggle.on{
-  background:var(--accent);
-}
-.toggle.on::after{
-  left:23px;
+/* ===== SCRIPT EDITOR ===== */
+#editor-tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 6px;
 }
 
-/* ================= Modal ================= */
+.tab {
+  padding: 6px 12px;
+  border-radius: 10px;
+  background: #111;
+  cursor: pointer;
+}
 
-.modal{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.6);
-  display:none;
-  align-items:center;
-  justify-content:center;
+.tab.active {
+  background: var(--accent);
 }
-.modal.active{display:flex}
-.modal-box{
-  background:#101126;
-  border-radius:18px;
-  padding:16px;
-  width:90%;
-  max-width:420px;
-  display:flex;
-  flex-direction:column;
-  gap:10px;
+
+#editor {
+  flex: 1;
+  background: #020205;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  padding: 14px;
+  font-family: monospace;
+  overflow-y: auto;
+  color: #eaeaff;
+  white-space: pre;
 }
-.modal-box input,
-.modal-box textarea{
-  background:#0c0d15;
-  border:1px solid var(--border);
-  border-radius:10px;
-  padding:10px;
-  color:#fff;
+
+/* iPad fix */
+@media (min-width: 768px) {
+  #editor {
+    margin-top: auto;
+    min-height: 65vh;
+  }
+}
+
+/* ===== EXEC BUTTONS ===== */
+#exec-bar {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.exec-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #7a5cff, #a98bff);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ===== SCRIPTBLOX ===== */
+#scriptblox-search {
+  padding: 10px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: #08080f;
+  color: white;
+}
+
+#scriptblox-list {
+  margin-top: 10px;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.script-card {
+  display: flex;
+  gap: 12px;
+  padding: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.script-card img {
+  width: 52px;
+  height: 52px;
+  border-radius: 10px;
+}
+
+/* ===== SETTINGS ===== */
+.setting {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.toggle {
+  width: 48px;
+  height: 26px;
+  background: #222;
+  border-radius: 13px;
+  position: relative;
+}
+
+.toggle::after {
+  content: '';
+  width: 20px;
+  height: 20px;
+  background: white;
+  border-radius: 50%;
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  transition: 0.25s;
+}
+
+.toggle.on {
+  background: var(--accent);
+}
+.toggle.on::after {
+  left: 25px;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.98); }
+  to { opacity: 1; transform: scale(1); }
 }
 </style>
 </head>
 
 <body>
+<div id="app">
 
-<div class="app">
-
-  <div class="sidebar-wrap">
-    <div class="sidebar">
-      <div class="nav-btn active" data-panel="editor">✎</div>
-      <div class="nav-btn" data-panel="blox">☁</div>
-      <div class="nav-btn" data-panel="saved">★</div>
-      <div class="nav-btn" data-panel="settings">⚙</div>
+  <div id="sidebar-wrapper">
+    <div id="sidebar">
+      <div class="sidebar-btn active" data-panel="editorPanel"></div>
+      <div class="sidebar-btn" data-panel="scriptbloxPanel"></div>
+      <div class="sidebar-btn" data-panel="savedPanel"></div>
+      <div class="sidebar-btn" data-panel="settingsPanel"></div>
     </div>
   </div>
 
-  <div class="main">
-    <div class="header">Parallax</div>
+  <div id="content">
+    <div id="header">Parallax</div>
 
-    <!-- Editor -->
-    <div class="panel active" id="editor">
-      <div class="editor-tabs" id="tabs">
-        <div class="tab active" data-tab="0">Script 1 <span class="x">×</span></div>
-        <div class="tab" id="newTab">+</div>
-      </div>
+    <div id="disclaimer">
+      <svg viewBox="0 0 24 24"><path d="M1 21h22L12 2z"/></svg>
+      <h2>Disclaimer</h2>
+      <p>Use at your own risk. Parallax is not responsible for any bans.</p>
+      <button onclick="dismissDisclaimer()">Continue</button>
+    </div>
 
-      <div class="editor-wrap">
-        <div class="editor-scroll">
-          <pre class="highlight-layer" id="hl"></pre>
-          <textarea id="code">// Parallax Executor
-print("Hello world")</textarea>
-        </div>
-        <div class="editor-actions">
-          <div class="action-btn">▶</div>
-          <div class="action-btn">🗑</div>
-        </div>
+    <div id="editorPanel" class="panel active">
+      <div id="editor-tabs"></div>
+      <div id="editor" contenteditable></div>
+      <div id="exec-bar">
+        <div class="exec-btn"></div>
+        <div class="exec-btn"></div>
       </div>
     </div>
 
-    <!-- ScriptBlox -->
-    <div class="panel" id="blox">
-      <input class="search" id="search" placeholder="Search ScriptBlox">
-      <div class="results" id="results"></div>
+    <div id="scriptbloxPanel" class="panel">
+      <input id="scriptblox-search" placeholder="Search ScriptBlox..." />
+      <div id="scriptblox-list"></div>
     </div>
 
-    <!-- Saved -->
-    <div class="panel" id="saved">
-      <div style="text-align:right;margin-bottom:10px">
-        <button onclick="openModal()">＋</button>
-      </div>
-      <div class="saved-list" id="savedList"></div>
-    </div>
-
-    <!-- Settings -->
-    <div class="panel" id="settings">
-      <div class="setting">
-        <h4>Robux Purchases</h4>
-        <p>Warns before scripts attempt Robux interactions.</p>
-        <div class="toggle-row"><div class="toggle"></div></div>
-      </div>
-      <div class="setting">
-        <h4>Script Anti-Scam</h4>
-        <p>Detects common malicious Luau patterns.</p>
-        <div class="toggle-row"><div class="toggle"></div></div>
-      </div>
-      <div class="setting">
-        <h4>Verify Teleports</h4>
-        <p>Confirms script-triggered teleports.</p>
-        <div class="toggle-row"><div class="toggle"></div></div>
-      </div>
-      <div class="setting">
-        <h4>Anti Kick</h4>
-        <p>Attempts to block kick methods.</p>
-        <div class="toggle-row"><div class="toggle"></div></div>
-      </div>
-      <div class="setting">
-        <h4>Luau Highlighting</h4>
-        <p>Advanced Luau syntax highlighting. Always enabled.</p>
-        <div class="toggle-row"><div class="toggle on"></div></div>
-      </div>
-    </div>
-
+    <div id="savedPanel" class="panel"></div>
+    <div id="settingsPanel" class="panel"></div>
   </div>
-</div>
 
-<!-- Modal -->
-<div class="modal" id="modal">
-  <div class="modal-box">
-    <input id="saveTitle" placeholder="Script title">
-    <textarea id="saveCode" rows="6" placeholder="Script code"></textarea>
-    <button onclick="saveScript()">Add</button>
-  </div>
 </div>
 
 <script>
-/* Editor sync */
-const code=document.getElementById("code");
-const hl=document.getElementById("hl");
-code.addEventListener("input",()=>hl.textContent=code.value);
-hl.textContent=code.value;
-
-/* Panels */
-document.querySelectorAll(".nav-btn").forEach(b=>{
-  b.onclick=()=>{
-    document.querySelectorAll(".nav-btn").forEach(n=>n.classList.remove("active"));
-    b.classList.add("active");
-    document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"));
-    document.getElementById(b.dataset.panel).classList.add("active");
-    if(b.dataset.panel==="saved") loadSaved();
-  };
-});
-
-/* Toggles */
-document.querySelectorAll(".toggle").forEach(t=>{
-  t.onclick=()=>t.classList.toggle("on");
-});
-
-/* Saved scripts */
-function openModal(){
-  document.getElementById("modal").classList.add("active");
-}
-function saveScript(){
-  const t=saveTitle.value;
-  const c=saveCode.value;
-  const arr=JSON.parse(localStorage.getItem("saved")||"[]");
-  arr.push({t,c});
-  localStorage.setItem("saved",JSON.stringify(arr));
-  modal.classList.remove("active");
-  loadSaved();
-}
-function loadSaved(){
-  const list=document.getElementById("savedList");
-  list.innerHTML="";
-  const arr=JSON.parse(localStorage.getItem("saved")||"[]");
-  arr.forEach((s,i)=>{
-    const d=document.createElement("div");
-    d.className="saved-item";
-    d.innerHTML=`
-      <div>${s.t}</div>
-      <div class="saved-actions">
-        <button onclick="code.value=${JSON.stringify(s.c)};hl.textContent=code.value">Execute</button>
-        <button onclick="openModal()">Edit</button>
-        <button onclick="del(${i})">Delete</button>
-      </div>`;
-    list.appendChild(d);
-  });
-}
-function del(i){
-  const a=JSON.parse(localStorage.getItem("saved")||"[]");
-  a.splice(i,1);
-  localStorage.setItem("saved",JSON.stringify(a));
-  loadSaved();
+/* ===== DISCLAIMER ===== */
+function dismissDisclaimer() {
+  document.getElementById('disclaimer').style.display = 'none';
 }
 
-/* ScriptBlox infinite scroll + cache */
-let sbPage=1,sbLoading=false,sbQuery="";
-const imgCache=new Map();
-
-async function loadBlox(reset=false){
-  if(sbLoading)return;
-  sbLoading=true;
-  if(reset){sbPage=1;results.innerHTML="";}
-  try{
-    const r=await fetch(`https://scriptblox.com/api/script/search?q=${encodeURIComponent(sbQuery)}&page=${sbPage}&max=20`);
-    const j=await r.json();
-    if(!j?.result?.scripts?.length){
-      if(sbPage===1)results.innerHTML="<div style='opacity:.6'>No results</div>";
-      sbLoading=false;return;
-    }
-    j.result.scripts.forEach(s=>{
-      const c=document.createElement("div");
-      c.className="card";
-      if(s.image){
-        if(imgCache.has(s.image)){
-          const i=new Image();
-          i.src=imgCache.get(s.image);
-          c.appendChild(i);
-        }else{
-          fetch(s.image).then(r=>r.blob()).then(b=>{
-            const u=URL.createObjectURL(b);
-            imgCache.set(s.image,u);
-            const i=new Image();
-            i.src=u;
-            c.appendChild(i);
-          });
-        }
-      }
-      c.innerHTML+=`<b>${s.title}</b>`;
-      c.onclick=()=>{code.value=s.script||"";hl.textContent=code.value};
-      results.appendChild(c);
-    });
-    sbPage++;
-  }catch{}
-  sbLoading=false;
-}
-
-search.oninput=()=>{
-  sbQuery=search.value.trim();
-  if(!sbQuery)return;
-  loadBlox(true);
-};
-results.onscroll=()=>{
-  if(results.scrollTop+results.clientHeight>=results.scrollHeight-200){
-    loadBlox();
+/* ===== SIDEBAR ===== */
+document.querySelectorAll('.sidebar-btn').forEach(btn=>{
+  btn.onclick=()=>{
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    document.querySelectorAll('.sidebar-btn').forEach(b=>b.classList.remove('active'));
+    document.getElementById(btn.dataset.panel).classList.add('active');
+    btn.classList.add('active');
   }
-};
-</script>
+});
 
+/* ===== SCRIPTBLOX ===== */
+let page = 1;
+let loading = false;
+let cache = JSON.parse(localStorage.getItem('imgCache')||'{}');
+
+async function loadScripts(q="") {
+  if (loading) return;
+  loading = true;
+  const res = await fetch(`https://scriptblox.com/api/script/search?q=${q}&page=${page}`);
+  const data = await res.json();
+  if (!data.result.length) {
+    document.getElementById('scriptblox-list').innerHTML += "<p>No results.</p>";
+    loading=false;
+    return;
+  }
+  data.result.forEach(s=>{
+    let img = cache[s.game.image] || s.game.image;
+    cache[s.game.image] = img;
+    const card = document.createElement('div');
+    card.className='script-card';
+    card.innerHTML=`<img src="${img}"><div>${s.title}</div>`;
+    document.getElementById('scriptblox-list').appendChild(card);
+  });
+  localStorage.setItem('imgCache',JSON.stringify(cache));
+  page++;
+  loading=false;
+}
+
+document.getElementById('scriptblox-list').onscroll = e=>{
+  const el=e.target;
+  if(el.scrollTop+el.clientHeight>=el.scrollHeight-100) loadScripts();
+};
+
+document.getElementById('scriptblox-search').oninput=e=>{
+  page=1;
+  document.getElementById('scriptblox-list').innerHTML="";
+  loadScripts(e.target.value);
+};
+
+/* ===== SETTINGS ===== */
+['Robux Purchases','Script Anti-Scam','Verify Teleports','Anti Kick','Luau Highlighting'].forEach(s=>{
+  const div=document.createElement('div');
+  div.className='setting';
+  div.innerHTML=`<span>${s}</span><div class="toggle on"></div>`;
+  div.querySelector('.toggle').onclick=e=>e.target.classList.toggle('on');
+  settingsPanel.appendChild(div);
+});
+</script>
 </body>
 </html>
