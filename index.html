@@ -511,42 +511,65 @@ function del(i){
 }
 
 /* ===== Tab Functions (EVERY TAB CLOSABLE) ===== */
-function createTab(title, content=""){
-  const newTab = document.createElement("div");
-  newTab.className = "tab active";
-  newTab.innerHTML = `${title} <span class="x">×</span>`;
-  tabs.querySelectorAll(".tab:not(:last-child)").forEach(t => t.classList.remove("active"));
-  tabs.insertBefore(newTab, tabs.querySelector(".tab:last-child"));
-  code.value = content;
-  hl.textContent = content;
+const tabsData = [{title:"Script 1", content:code.value}]; // store tab info
 
-  const xBtn = newTab.querySelector(".x");
-  xBtn.onclick = e => {
-    e.stopPropagation();
-    newTab.remove();
-    const firstTab = tabs.querySelector(".tab:not(:last-child)");
-    if(firstTab){
-      firstTab.classList.add("active");
-      code.value = firstTab.dataset.content || "";
-      hl.textContent = code.value;
-    }
+function renderTabs(){
+  tabs.innerHTML = "";
+  tabsData.forEach((t,i)=>{
+    const tab = document.createElement("div");
+    tab.className = "tab" + (i === 0 ? " active" : "");
+    tab.innerHTML = `${t.title} <span class="x">×</span>`;
+    tab.dataset.index = i;
+
+    // Close button
+    tab.querySelector(".x").onclick = e=>{
+      e.stopPropagation();
+      tabsData.splice(i,1);
+      if(tabsData.length === 0) { // always keep at least one tab
+        tabsData.push({title:"Script 1", content:""});
+      }
+      renderTabs();
+      setActiveTab(Math.min(i, tabsData.length-1));
+    };
+
+    // Click tab
+    tab.onclick = ()=>{
+      setActiveTab(i);
+    };
+
+    tabs.appendChild(tab);
+  });
+
+  // "+" tab
+  const plus = document.createElement("div");
+  plus.className = "tab";
+  plus.textContent = "+";
+  plus.onclick = ()=>{
+    const idx = tabsData.length;
+    tabsData.push({title:`Script ${idx+1}`, content:""});
+    renderTabs();
+    setActiveTab(idx);
   };
-
-  newTab.onclick = () => {
-    tabs.querySelectorAll(".tab:not(:last-child)").forEach(t => t.classList.remove("active"));
-    newTab.classList.add("active");
-    code.value = content;
-    hl.textContent = content;
-  };
-
-  newTab.dataset.content = content;
+  tabs.appendChild(plus);
 }
 
-// "+" tab new tab
-tabs.querySelector(".tab:last-child").onclick = () => {
-  const count = tabs.querySelectorAll(".tab:not(:last-child)").length + 1;
-  createTab(`Script ${count}`, "");
-};
+function setActiveTab(index){
+  tabs.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+  tabs.children[index].classList.add("active");
+  code.value = tabsData[index].content;
+  hl.textContent = code.value;
+}
+
+// Save content on input
+code.addEventListener("input",()=>{
+  const active = tabs.querySelector(".tab.active");
+  if(!active) return;
+  const idx = Number(active.dataset.index);
+  tabsData[idx].content = code.value;
+  hl.textContent = code.value;
+});
+
+renderTabs();
 
 /* ScriptBlox API + Overlay */
 let sbPage=1,sbLoading=false,sbQuery="";
@@ -589,7 +612,6 @@ const bloxModal=document.getElementById("bloxModal");
 loadEditor.onclick=()=>{ createTab(selectedTitle,selectedScript); bloxModal.classList.remove("active"); };
 loadSavedBtn.onclick=()=>{ const a=JSON.parse(localStorage.getItem("saved")||"[]"); a.push({t:selectedTitle,c:selectedScript}); localStorage.setItem("saved",JSON.stringify(a)); loadSaved(); bloxModal.classList.remove("active"); };
 copyClipboard.onclick=()=>{ navigator.clipboard.writeText(selectedScript); bloxModal.classList.remove("active"); };
-
 </script>
 
 </body>
