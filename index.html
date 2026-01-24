@@ -8,7 +8,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
-/* === NO CSS REMOVED OR CHANGED === */
 :root{
   --bg:#0a0a0f;
   --panel:#10111a;
@@ -322,6 +321,7 @@ textarea{
 <body>
 
 <div class="app">
+
   <div class="sidebar-wrap">
     <div class="sidebar">
       <div class="nav-btn active" data-panel="editor">✎</div>
@@ -334,6 +334,7 @@ textarea{
   <div class="main">
     <div class="header">Parallax</div>
 
+    <!-- Editor -->
     <div class="panel active" id="editor">
       <div class="editor-tabs" id="tabs">
         <div class="tab active">Script 1 <span class="x">×</span></div>
@@ -353,11 +354,13 @@ print("Hello world")</textarea>
       </div>
     </div>
 
+    <!-- ScriptBlox -->
     <div class="panel" id="blox">
       <input class="search" id="search" placeholder="Search ScriptBlox">
       <div class="results" id="results"></div>
     </div>
 
+    <!-- Saved -->
     <div class="panel" id="saved">
       <div style="text-align:right;margin-bottom:10px">
         <button onclick="openModal()">＋</button>
@@ -365,16 +368,39 @@ print("Hello world")</textarea>
       <div class="saved-list" id="savedList"></div>
     </div>
 
+    <!-- Settings -->
     <div class="panel" id="settings">
-      <div class="setting"><h4>Robux Purchases</h4><p>Warns before scripts attempt Robux interactions.</p><div class="toggle-row"><div class="toggle"></div></div></div>
-      <div class="setting"><h4>Script Anti-Scam</h4><p>Detects common malicious Luau patterns.</p><div class="toggle-row"><div class="toggle"></div></div></div>
-      <div class="setting"><h4>Verify Teleports</h4><p>Confirms script-triggered teleports.</p><div class="toggle-row"><div class="toggle"></div></div></div>
-      <div class="setting"><h4>Anti Kick</h4><p>Attempts to block kick methods.</p><div class="toggle-row"><div class="toggle"></div></div></div>
-      <div class="setting"><h4>Luau Highlighting</h4><p>Advanced Luau syntax highlighting. Always enabled.</p><div class="toggle-row"><div class="toggle on"></div></div></div>
+      <div class="setting">
+        <h4>Robux Purchases</h4>
+        <p>Warns before scripts attempt Robux interactions.</p>
+        <div class="toggle-row"><div class="toggle"></div></div>
+      </div>
+      <div class="setting">
+        <h4>Script Anti-Scam</h4>
+        <p>Detects common malicious Luau patterns.</p>
+        <div class="toggle-row"><div class="toggle"></div></div>
+      </div>
+      <div class="setting">
+        <h4>Verify Teleports</h4>
+        <p>Confirms script-triggered teleports.</p>
+        <div class="toggle-row"><div class="toggle"></div></div>
+      </div>
+      <div class="setting">
+        <h4>Anti Kick</h4>
+        <p>Attempts to block kick methods.</p>
+        <div class="toggle-row"><div class="toggle"></div></div>
+      </div>
+      <div class="setting">
+        <h4>Luau Highlighting</h4>
+        <p>Advanced Luau syntax highlighting. Always enabled.</p>
+        <div class="toggle-row"><div class="toggle on"></div></div>
+      </div>
     </div>
+
   </div>
 </div>
 
+<!-- Modal -->
 <div class="modal" id="modal">
   <div class="modal-box">
     <input id="saveTitle" placeholder="Script title">
@@ -406,11 +432,10 @@ document.querySelectorAll(".toggle").forEach(t=>{
   t.onclick=()=>t.classList.toggle("on");
 });
 
-/* ===== SAVED SCRIPTS FIX ===== */
-let editIndex=null; // FIX
-
+/* ===== Saved scripts (unchanged) ===== */
+let editIndex=null;
 function openModal(index=null){
-  editIndex=index; // FIX
+  editIndex=index;
   modal.classList.add("active");
   if(index!==null){
     const arr=JSON.parse(localStorage.getItem("saved")||"[]");
@@ -421,11 +446,10 @@ function openModal(index=null){
     saveCode.value="";
   }
 }
-
 function saveScript(){
   const arr=JSON.parse(localStorage.getItem("saved")||"[]");
   if(editIndex!==null){
-    arr[editIndex]={t:saveTitle.value,c:saveCode.value}; // FIX overwrite
+    arr[editIndex]={t:saveTitle.value,c:saveCode.value};
   }else{
     arr.push({t:saveTitle.value,c:saveCode.value});
   }
@@ -434,7 +458,6 @@ function saveScript(){
   editIndex=null;
   loadSaved();
 }
-
 function loadSaved(){
   savedList.innerHTML="";
   const arr=JSON.parse(localStorage.getItem("saved")||"[]");
@@ -451,13 +474,93 @@ function loadSaved(){
     savedList.appendChild(d);
   });
 }
-
 function del(i){
   const a=JSON.parse(localStorage.getItem("saved")||"[]");
   a.splice(i,1);
   localStorage.setItem("saved",JSON.stringify(a));
   loadSaved();
 }
+
+/* ================= ScriptBlox FIXED ================= */
+
+let sbPage=1,sbLoading=false,sbQuery="";
+const imgCache=new Map();
+
+async function loadBlox(reset=false){
+  if(sbLoading)return;
+  sbLoading=true;
+  if(reset){
+    sbPage=1;
+    results.innerHTML="";
+  }
+  try{
+    const r=await fetch(
+      `https://scriptblox.com/api/script/search?q=${encodeURIComponent(sbQuery)}&page=${sbPage}&max=20`
+    );
+    const j=await r.json();
+
+    const scripts =
+      j?.result?.scripts ||
+      j?.scripts ||
+      [];
+
+    if(!scripts.length){
+      if(sbPage===1){
+        results.innerHTML="<div style='opacity:.6'>No results</div>";
+      }
+      sbLoading=false;
+      return;
+    }
+
+    scripts.forEach(s=>{
+      const c=document.createElement("div");
+      c.className="card";
+
+      if(s.image){
+        if(imgCache.has(s.image)){
+          const i=new Image();
+          i.src=imgCache.get(s.image);
+          c.appendChild(i);
+        }else{
+          fetch(s.image)
+            .then(r=>r.blob())
+            .then(b=>{
+              const u=URL.createObjectURL(b);
+              imgCache.set(s.image,u);
+              const i=new Image();
+              i.src=u;
+              c.appendChild(i);
+            });
+        }
+      }
+
+      c.innerHTML+=`<b>${s.title || "Untitled Script"}</b>`;
+      c.onclick=()=>{
+        code.value=s.script || "";
+        hl.textContent=code.value;
+      };
+      results.appendChild(c);
+    });
+
+    sbPage++;
+  }catch{
+    if(sbPage===1){
+      results.innerHTML="<div style='opacity:.6'>Failed to load ScriptBlox</div>";
+    }
+  }
+  sbLoading=false;
+}
+
+search.oninput=()=>{
+  sbQuery=search.value.trim();
+  loadBlox(true);
+};
+
+results.onscroll=()=>{
+  if(results.scrollTop+results.clientHeight>=results.scrollHeight-200){
+    loadBlox();
+  }
+};
 </script>
 
 </body>
