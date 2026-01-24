@@ -430,6 +430,7 @@ print("Hello world")</textarea>
 /* ===== Editor & Highlight Sync ===== */
 const code=document.getElementById("code");
 const hl=document.getElementById("hl");
+const tabs=document.getElementById("tabs");
 code.addEventListener("input",()=>hl.textContent=code.value);
 hl.textContent=code.value;
 
@@ -484,7 +485,7 @@ function loadSaved(){
     d.innerHTML=`
       <div>${s.t}</div>
       <div class="saved-actions">
-        <button onclick="code.value=${JSON.stringify(s.c)};hl.textContent=code.value">Execute</button>
+        <button onclick="switchTab(${i})">Execute</button>
         <button onclick="openModal(${i})">Edit</button>
         <button onclick="del(${i})">Delete</button>
       </div>`;
@@ -498,50 +499,72 @@ function del(i){
   loadSaved();
 }
 
+/* ===== Editor Tab Handling ===== */
+function switchTab(index){
+  const arr=JSON.parse(localStorage.getItem("saved")||"[]");
+  const script=arr[index];
+  if(!script) return;
+  // Create new tab
+  const newTab=document.createElement("div");
+  newTab.className="tab active";
+  newTab.innerHTML=`${script.t} <span class="x">×</span>`;
+  // Remove active from others
+  tabs.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+  tabs.insertBefore(newTab,tabs.querySelector(".tab:last-child"));
+  code.value=script.c;
+  hl.textContent=code.value;
+  // Handle X button
+  newTab.querySelector(".x").onclick=e=>{
+    e.stopPropagation();
+    newTab.remove();
+    // If removing active tab, activate first tab
+    if(newTab.classList.contains("active") && tabs.querySelectorAll(".tab").length>1){
+      const firstTab=tabs.querySelector(".tab:not(.tab:last-child)");
+      firstTab.classList.add("active");
+      const idx=Array.from(tabs.children).indexOf(firstTab);
+      code.value=arr[idx].c;
+      hl.textContent=code.value;
+    }
+  };
+  // Switch tab on click
+  newTab.onclick=()=>{ 
+    tabs.querySelectorAll(".tab").forEach(t=>t.classList.remove("active")); 
+    newTab.classList.add("active");
+    code.value=script.c; 
+    hl.textContent=code.value; 
+  };
+}
+
 /* ===== ScriptBlox API + Overlay ===== */
 let sbPage=1,sbLoading=false,sbQuery="";
 const imgCache=new Map();
-let selectedScript="";
+let selectedScript=null;
+let selectedTitle="";
 
 async function loadBlox(reset=false){
   if(sbLoading) return;
   sbLoading=true;
   if(reset){ sbPage=1; results.innerHTML=""; }
   try{
-    const r=await fetch(
-      `https://scriptblox.com/api/script/search?q=${encodeURIComponent(sbQuery)}&page=${sbPage}&max=20`
-    );
+    const r=await fetch(`https://scriptblox.com/api/script/search?q=${encodeURIComponent(sbQuery)}&page=${sbPage}&max=20`);
     const j=await r.json();
     const scripts = j?.result?.scripts || j?.scripts || [];
-    if(!scripts.length){
-      if(sbPage===1) results.innerHTML="<div style='opacity:.6'>No results</div>";
-      sbLoading=false;
-      return;
-    }
+    if(!scripts.length){ if(sbPage===1) results.innerHTML="<div style='opacity:.6'>No results</div>"; sbLoading=false; return; }
     scripts.forEach(s=>{
       const c=document.createElement("div");
       c.className="card";
       if(s.image){
-        if(imgCache.has(s.image)){
-          const i=new Image(); i.src=imgCache.get(s.image); c.appendChild(i);
-        }else{
-          fetch(s.image).then(r=>r.blob()).then(b=>{
-            const u=URL.createObjectURL(b);
-            imgCache.set(s.image,u);
-            const i=new Image();
-            i.src=u; c.appendChild(i);
-          });
-        }
+        if(imgCache.has(s.image)){ const i=new Image(); i.src=imgCache.get(s.image); c.appendChild(i); }
+        else{ fetch(s.image).then(r=>r.blob()).then(b=>{ const u=URL.createObjectURL(b); imgCache.set(s.image,u); const i=new Image(); i.src=u; c.appendChild(i); }); }
       }
       c.innerHTML+=`<b>${s.title || "Untitled Script"}</b>`;
-      c.onclick=()=>{ selectedScript=s.script||""; bloxModal.classList.add("active"); };
+      c.onclick=()=>{ selectedScript=s.script||""; selectedTitle=s.title||"Untitled Script"; bloxModal.classList.add("active"); };
       results.appendChild(c);
     });
     sbPage++;
   }catch{ if(sbPage===1) results.innerHTML="<div style='opacity:.6'>Failed to load ScriptBlox</div>"; }
   sbLoading=false;
 }
-
 search.oninput=()=>{ sbQuery=search.value.trim(); loadBlox(true); };
 results.onscroll=()=>{ if(results.scrollTop+results.clientHeight>=results.scrollHeight-200){ loadBlox(); } };
 
@@ -551,15 +574,42 @@ const loadSavedBtn=document.getElementById("loadSaved");
 const copyClipboard=document.getElementById("copyClipboard");
 const bloxModal=document.getElementById("bloxModal");
 
-loadEditor.onclick=()=>{ code.value=selectedScript; hl.textContent=code.value; bloxModal.classList.remove("active"); };
+loadEditor.onclick=()=>{
+  switchTabForScript(selectedTitle,selectedScript);
+  bloxModal.classList.remove("active");
+};
 loadSavedBtn.onclick=()=>{
   const a=JSON.parse(localStorage.getItem("saved")||"[]");
-  a.push({t:"ScriptBlox Script",c:selectedScript});
+  a.push({t:selectedTitle,c:selectedScript});
   localStorage.setItem("saved",JSON.stringify(a));
+  loadSaved();
   bloxModal.classList.remove("active");
 };
 copyClipboard.onclick=()=>{ navigator.clipboard.writeText(selectedScript); bloxModal.classList.remove("active"); };
-</script>
 
+/* ===== Helper for creating a tab from ScriptBlox ===== */
+function switchTabForScript(title,script){
+  const newTab=document.createElement("div");
+  newTab.className="tab active";
+  newTab.innerHTML=`${title} <span class="x">×</span>`;
+  tabs.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+  tabs.insertBefore(newTab,tabs.querySelector(".tab:last-child"));
+  code.value=script;
+  hl.textContent=code.value;
+  newTab.querySelector(".x").onclick=e=>{
+    e.stopPropagation();
+    newTab.remove();
+    const firstTab=tabs.querySelector(".tab:not(.tab:last-child)");
+    if(firstTab){
+      firstTab.classList.add("active");
+      const arr=JSON.parse(localStorage.getItem("saved")||"[]");
+      const idx=Array.from(tabs.children).indexOf(firstTab);
+      if(arr[idx]) code.value=arr[idx].c;
+      hl.textContent=code.value;
+    }
+  };
+  newTab.onclick=()=>{ tabs.querySelectorAll(".tab").forEach(t=>t.classList.remove("active")); newTab.classList.add("active"); code.value=script; hl.textContent=script; };
+}
+</script>
 </body>
 </html>
