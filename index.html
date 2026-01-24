@@ -45,7 +45,7 @@ html,body{
   justify-content:center;
 }
 .sidebar{
-  height:90%;
+  height:auto;
   width:72px;
   background:linear-gradient(180deg,#121321,#0c0d15);
   border:1px solid var(--border);
@@ -97,7 +97,6 @@ html,body{
   padding:16px;
   display:none;
   overflow:hidden;
-  animation:fade .25s ease;
   transition:opacity .3s, transform .3s;
   transform:translateY(6px);
 }
@@ -106,6 +105,7 @@ html,body{
   flex-direction:column;
   opacity:1;
   transform:translateY(0);
+  animation:fade .25s ease;
 }
 @keyframes fade{
   from{opacity:0;transform:translateY(6px)}
@@ -210,7 +210,7 @@ textarea{
   grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
   gap:12px;
   padding-bottom:10px;
-  overflow-y:auto; /* scroll works now */
+  overflow-y:auto;
 }
 .card{
   background:#121326;
@@ -363,28 +363,83 @@ textarea{
 /* ================= Credits ================= */
 .credits{
   flex:1;
-  overflow-y:auto; /* scrolling enabled */
+  overflow-y:auto;
   display:flex;
   flex-direction:column;
-  gap:8px;
+  gap:16px;
   font-size:14px;
-  color:var(--muted);
-  padding:14px;
-  background:linear-gradient(180deg,#101126,#14142d);
+  padding:0;
+}
+.credits-section{
+  background:linear-gradient(135deg,#121326,#0d0e17);
   border:1px solid var(--border);
   border-radius:14px;
+  padding:20px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  box-shadow:0 4px 20px rgba(0,0,0,.3);
+}
+.credits-section h3{
+  margin:0;
+  font-size:16px;
+  color:var(--accent);
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.credits-item{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:10px;
+  background:rgba(124,92,255,.08);
+  border-radius:10px;
+  border:1px solid rgba(124,92,255,.2);
+  transition:.2s;
+}
+.credits-item:hover{
+  background:rgba(124,92,255,.15);
+  border-color:rgba(124,92,255,.4);
+}
+.credits-icon{
+  width:36px;
+  height:36px;
+  border-radius:8px;
+  background:var(--accentSoft);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:18px;
+}
+.credits-info{
+  flex:1;
+}
+.credits-name{
+  font-weight:600;
+  color:#fff;
+  margin-bottom:2px;
+}
+.credits-role{
+  font-size:12px;
+  color:var(--muted);
 }
 .credits a{
   color:var(--accent);
   text-decoration:none;
-  display:inline-flex;
-  align-items:center;
-  gap:4px;
   transition:.2s;
+  font-weight:500;
 }
 .credits a:hover{
+  color:#9d7dff;
   text-decoration:underline;
-  color:#ff80ff;
+}
+.credits-footer{
+  text-align:center;
+  color:var(--muted);
+  font-size:13px;
+  padding:16px;
+  border-top:1px solid var(--border);
 }
 </style>
 </head>
@@ -472,11 +527,52 @@ print("Hello world")</textarea>
     <!-- Credits -->
     <div class="panel" id="credits">
       <div class="credits">
-        <div>Created by <a href="https://github.com/armorixteam">Armorix Team ❤️ (GitHub)</a></div>
-        <div>ZodaciOS - UI Development & Reverse Engineering <a href="https://github.com/ZodaciOS">GitHub</a></div>
-        <div>Nyxolz - UI Development <a href="https://github.com/Nyxolz">GitHub</a></div>
-        <div>Contributors: (empty)</div>
-        <div>Shout out to: Scriptblox</div>
+        <div class="credits-section">
+          <h3>💜 Created By</h3>
+          <div class="credits-item">
+            <div class="credits-icon">🛡️</div>
+            <div class="credits-info">
+              <div class="credits-name">Armorix Team</div>
+              <div class="credits-role">Project Creators</div>
+            </div>
+            <a href="https://github.com/armorixteam" target="_blank">GitHub →</a>
+          </div>
+        </div>
+
+        <div class="credits-section">
+          <h3>👨‍💻 Core Developers</h3>
+          <div class="credits-item">
+            <div class="credits-icon">⚡</div>
+            <div class="credits-info">
+              <div class="credits-name">ZodaciOS</div>
+              <div class="credits-role">UI Development & Reverse Engineering</div>
+            </div>
+            <a href="https://github.com/ZodaciOS" target="_blank">GitHub →</a>
+          </div>
+          <div class="credits-item">
+            <div class="credits-icon">🎨</div>
+            <div class="credits-info">
+              <div class="credits-name">Nyxolz</div>
+              <div class="credits-role">UI Development</div>
+            </div>
+            <a href="https://github.com/Nyxolz" target="_blank">GitHub →</a>
+          </div>
+        </div>
+
+        <div class="credits-section">
+          <h3>🤝 Special Thanks</h3>
+          <div class="credits-item">
+            <div class="credits-icon">☁️</div>
+            <div class="credits-info">
+              <div class="credits-name">ScriptBlox</div>
+              <div class="credits-role">API & Script Database</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="credits-footer">
+          Made with ❤️ for the Roblox community
+        </div>
       </div>
     </div>
 
@@ -513,8 +609,12 @@ document.querySelectorAll(".nav-btn").forEach(b=>{
   b.onclick=()=>{
     document.querySelectorAll(".nav-btn").forEach(n=>n.classList.remove("active"));
     b.classList.add("active");
-    document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"));
-    document.getElementById(b.dataset.panel).classList.add("active");
+    document.querySelectorAll(".panel").forEach(p=>{
+      p.classList.remove("active");
+      void p.offsetWidth;
+    });
+    const targetPanel = document.getElementById(b.dataset.panel);
+    targetPanel.classList.add("active");
     if(b.dataset.panel==="saved") loadSaved();
   };
 });
@@ -744,5 +844,3 @@ function createTab(title, content){
 
 </body>
 </html>
-
-
