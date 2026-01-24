@@ -239,10 +239,9 @@ textarea{
   flex:1;
   display:grid;
   grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
-  grid-auto-rows:max-content;
   gap:12px;
-  padding-bottom:10px;
-  overflow-y:scroll;
+  padding:12px 0;
+  overflow-y:auto;
   overflow-x:hidden;
   min-height:0;
   -webkit-overflow-scrolling:touch;
@@ -480,6 +479,12 @@ textarea{
   align-items:center;
   justify-content:center;
   font-size:18px;
+  overflow:hidden;
+}
+.credits-icon img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
 }
 .credits-info{
   flex:1;
@@ -519,11 +524,11 @@ textarea{
 
   <div class="sidebar-wrap">
     <div class="sidebar">
-      <div class="nav-btn active" data-panel="editor"><img src="logo1.PNG" alt="Editor"></div>
-      <div class="nav-btn" data-panel="blox"><img src="logo2.PNG" alt="ScriptBlox"></div>
-      <div class="nav-btn" data-panel="saved"><img src="logo3.PNG" alt="Saved"></div>
-      <div class="nav-btn" data-panel="settings"><img src="logo4.PNG" alt="Settings"></div>
-      <div class="nav-btn" data-panel="credits"><img src="logo5.PNG" alt="Credits"></div>
+      <div class="nav-btn active" data-panel="editor"><img src="logo1.jpeg" alt="Editor"></div>
+      <div class="nav-btn" data-panel="blox"><img src="logo2.jpeg" alt="ScriptBlox"></div>
+      <div class="nav-btn" data-panel="saved"><img src="logo3.jpeg" alt="Saved"></div>
+      <div class="nav-btn" data-panel="settings"><img src="logo4.jpeg" alt="Settings"></div>
+      <div class="nav-btn" data-panel="credits"><img src="logo5.jpeg" alt="Credits"></div>
     </div>
   </div>
 
@@ -600,7 +605,7 @@ print("Hello world")</textarea>
         <div class="credits-section">
           <h3>💜 Created By</h3>
           <div class="credits-item">
-            <div class="credits-icon">🛡️</div>
+            <div class="credits-icon"><img src="armorix.png" alt="Armorix"></div>
             <div class="credits-info">
               <div class="credits-name">Armorix Team</div>
               <div class="credits-role">Project Creators</div>
@@ -612,7 +617,7 @@ print("Hello world")</textarea>
         <div class="credits-section">
           <h3>👨‍💻 Core Developers</h3>
           <div class="credits-item">
-            <div class="credits-icon">⚡</div>
+            <div class="credits-icon"><img src="zodacios.png" alt="ZodaciOS"></div>
             <div class="credits-info">
               <div class="credits-name">ZodaciOS</div>
               <div class="credits-role">UI Development & Reverse Engineering</div>
@@ -620,7 +625,7 @@ print("Hello world")</textarea>
             <a href="https://github.com/ZodaciOS" target="_blank">GitHub →</a>
           </div>
           <div class="credits-item">
-            <div class="credits-icon">🎨</div>
+            <div class="credits-icon"><img src="nyxolz.png" alt="Nyxolz"></div>
             <div class="credits-info">
               <div class="credits-name">Nyxolz</div>
               <div class="credits-role">UI Development</div>
