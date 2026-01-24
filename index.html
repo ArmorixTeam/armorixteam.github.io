@@ -239,11 +239,13 @@ textarea{
   flex:1;
   display:grid;
   grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+  grid-auto-rows:max-content;
   gap:12px;
   padding-bottom:10px;
-  overflow-y:auto;
+  overflow-y:scroll;
   overflow-x:hidden;
   min-height:0;
+  -webkit-overflow-scrolling:touch;
 }
 .card{
   background:#121326;
@@ -274,8 +276,37 @@ textarea{
   justify-content:space-between;
   align-items:center;
 }
+.saved-actions{
+  display:flex;
+  gap:6px;
+}
 .saved-actions button{
-  margin-left:6px;
+  background:transparent;
+  border:none;
+  cursor:pointer;
+  padding:4px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.saved-actions img{
+  width:20px;
+  height:20px;
+  object-fit:contain;
+}
+.add-script-btn{
+  background:transparent;
+  border:none;
+  cursor:pointer;
+  padding:8px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.add-script-btn img{
+  width:24px;
+  height:24px;
+  object-fit:contain;
 }
 
 /* ================= Settings ================= */
@@ -488,16 +519,16 @@ textarea{
 
   <div class="sidebar-wrap">
     <div class="sidebar">
-      <div class="nav-btn active" data-panel="editor"><img src="IMG_1105.png" alt="Editor"></div>
-      <div class="nav-btn" data-panel="blox"><img src="IMG_1106.png" alt="ScriptBlox"></div>
-      <div class="nav-btn" data-panel="saved"><img src="IMG_1107.png" alt="Saved"></div>
-      <div class="nav-btn" data-panel="settings"><img src="IMG_1108.png" alt="Settings"></div>
-      <div class="nav-btn" data-panel="credits"><img src="IMG_1104.png" alt="Credits"></div>
+      <div class="nav-btn active" data-panel="editor"><img src="logo1.jpeg" alt="Editor"></div>
+      <div class="nav-btn" data-panel="blox"><img src="logo2.jpeg" alt="ScriptBlox"></div>
+      <div class="nav-btn" data-panel="saved"><img src="logo3.jpeg" alt="Saved"></div>
+      <div class="nav-btn" data-panel="settings"><img src="logo4.jpeg" alt="Settings"></div>
+      <div class="nav-btn" data-panel="credits"><img src="logo5.jpeg" alt="Credits"></div>
     </div>
   </div>
 
   <div class="main">
-    <div class="header">Parallax<img src="IMG_1093.png" alt="Logo" class="header-logo"></div>
+    <div class="header">Parallax<img src="logo.png" alt="Logo" class="header-logo"></div>
 
     <!-- Editor -->
     <div class="panel active" id="editor">
@@ -529,7 +560,7 @@ print("Hello world")</textarea>
     <!-- Saved -->
     <div class="panel" id="saved">
       <div style="text-align:right;margin-bottom:10px">
-        <button onclick="openModal()">＋</button>
+        <button class="add-script-btn" onclick="openModal()"><img src="add.png" alt="Add"></button>
       </div>
       <div class="saved-list" id="savedList"></div>
     </div>
@@ -606,6 +637,22 @@ print("Hello world")</textarea>
               <div class="credits-name">ScriptBlox</div>
               <div class="credits-role">API & Script Database</div>
             </div>
+          </div>
+        </div>
+
+        <div class="credits-section">
+          <h3>💬 Community</h3>
+          <div class="credits-item">
+            <div class="credits-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515a.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0a12.64 12.64 0 0 0-.617-1.25a.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057a19.9 19.9 0 0 0 5.993 3.03a.078.078 0 0 0 .084-.028a14.09 14.09 0 0 0 1.226-1.994a.076.076 0 0 0-.041-.106a13.107 13.107 0 0 1-1.872-.892a.077.077 0 0 1-.008-.128a10.2 10.2 0 0 0 .372-.292a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127a12.299 12.299 0 0 1-1.873.892a.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028a19.839 19.839 0 0 0 6.002-3.03a.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.956-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.955-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.946 2.418-2.157 2.418z"/>
+              </svg>
+            </div>
+            <div class="credits-info">
+              <div class="credits-name">Join the Discord</div>
+              <div class="credits-role">Connect with the community</div>
+            </div>
+            <a href="https://discord.gg/RscS6DDj4v" target="_blank">Join →</a>
           </div>
         </div>
 
@@ -699,9 +746,9 @@ function loadSaved(){
     d.innerHTML=`
       <div>${s.t}</div>
       <div class="saved-actions">
-        <button onclick="switchTab(${i})">Execute</button>
-        <button onclick="openModal(${i})">Edit</button>
-        <button onclick="del(${i})">Delete</button>
+        <button onclick="switchTab(${i})"><img src="execute.png" alt="Execute"></button>
+        <button onclick="openModal(${i})"><img src="edit.png" alt="Edit"></button>
+        <button onclick="del(${i})"><img src="delete.png" alt="Delete"></button>
       </div>`;
     savedList.appendChild(d);
   });
