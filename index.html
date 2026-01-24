@@ -372,9 +372,13 @@ textarea{
 
 /* ================= Credits ================= */
 .credits{
-  font-size:12px;
+  flex:1;
+  overflow:auto;
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  font-size:13px;
   color:var(--muted);
-  margin-top:14px;
 }
 .credits a{
   color:var(--accent);
@@ -396,6 +400,7 @@ textarea{
       <div class="nav-btn" data-panel="blox">☁</div>
       <div class="nav-btn" data-panel="saved">★</div>
       <div class="nav-btn" data-panel="settings">⚙</div>
+      <div class="nav-btn" data-panel="credits">💖</div>
     </div>
   </div>
 
@@ -463,8 +468,10 @@ print("Hello world")</textarea>
         <p>Advanced Luau syntax highlighting. Always enabled.</p>
         <div class="toggle-row"><div class="toggle on"></div></div>
       </div>
+    </div>
 
-      <!-- Credits Section -->
+    <!-- Credits -->
+    <div class="panel" id="credits">
       <div class="credits">
         <div>Created by <a href="https://github.com/armorixteam">Armorix Team ❤️ (GitHub)</a></div>
         <div>ZodaciOS - UI Development & Reverse Engineering <a href="https://github.com/ZodaciOS">GitHub</a></div>
@@ -472,8 +479,9 @@ print("Hello world")</textarea>
         <div>Contributors: (empty)</div>
         <div>Shout out to: Scriptblox</div>
       </div>
-
     </div>
+
+  </div>
 </div>
 
 <!-- Save Modal -->
@@ -566,8 +574,8 @@ function del(i){
   loadSaved();
 }
 
-/* ===== Tab Functions (EVERY TAB CLOSABLE) ===== */
-const tabsData = [{title:"Script 1", content:code.value}]; // store tab info
+/* ===== Tab Functions ===== */
+const tabsData = [{title:"Script 1", content:code.value}];
 
 function renderTabs(){
   tabs.innerHTML = "";
@@ -576,27 +584,18 @@ function renderTabs(){
     tab.className = "tab" + (i === 0 ? " active" : "");
     tab.innerHTML = `${t.title} <span class="x">×</span>`;
     tab.dataset.index = i;
-
-    // Close button
     tab.querySelector(".x").onclick = e=>{
       e.stopPropagation();
       tabsData.splice(i,1);
-      if(tabsData.length === 0) { // always keep at least one tab
+      if(tabsData.length === 0) {
         tabsData.push({title:"Script 1", content:""});
       }
       renderTabs();
       setActiveTab(Math.min(i, tabsData.length-1));
     };
-
-    // Click tab
-    tab.onclick = ()=>{
-      setActiveTab(i);
-    };
-
+    tab.onclick = ()=>{ setActiveTab(i); };
     tabs.appendChild(tab);
   });
-
-  // "+" tab
   const plus = document.createElement("div");
   plus.className = "tab";
   plus.textContent = "+";
@@ -616,7 +615,6 @@ function setActiveTab(index){
   hl.textContent = code.value;
 }
 
-// Save content on input
 code.addEventListener("input",()=>{
   const active = tabs.querySelector(".tab.active");
   if(!active) return;
@@ -664,7 +662,7 @@ const bloxOverlayContent=document.getElementById("bloxOverlayContent");
 
 function showBloxOverlay(s){
   bloxOverlayContent.innerHTML="";
-  bloxOverlayContent.style.maxHeight = "70vh";      // Fix scroll
+  bloxOverlayContent.style.maxHeight = "70vh";      
   bloxOverlayContent.style.overflowY = "auto";
 
   if(s.image){
@@ -736,7 +734,7 @@ function showBloxOverlay(s){
   bloxModal.classList.add("active");
 }
 
-/* ===== Tab Creation Function Used By ScriptBlox ===== */
+/* ===== Tab Creation Function ===== */
 function createTab(title, content){
   const idx = tabsData.length;
   tabsData.push({title, content});
