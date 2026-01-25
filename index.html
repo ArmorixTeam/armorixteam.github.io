@@ -555,7 +555,9 @@ print("Hello world")</textarea>
     <!-- Saved -->
     <div class="panel" id="saved">
       <div style="text-align:right;margin-bottom:10px">
-        <button class="action-btn" onclick="openModal()" style="position:static;box-shadow:none">➕</button>
+        <button class="action-btn" onclick="openModal()" style="position:static;box-shadow:none;background:transparent;width:auto;height:auto;padding:4px">
+          <img src="add.png" alt="Add" style="width:24px;height:24px">
+        </button>
       </div>
       <div class="saved-list" id="savedList"></div>
     </div>
@@ -736,6 +738,25 @@ function loadDeviceInfo(){
     const match = ua.match(/OS (\d+)_(\d+)_?(\d+)?/);
     if(match) os = `iOS ${match[1]}.${match[2]}${match[3] ? '.' + match[3] : ''}`;
     else os = "iOS (Unknown Version)";
+  } else if(/Mac OS X/.test(ua) && navigator.maxTouchPoints > 1){
+    // iPad pretending to be macOS (iPadOS 13+)
+    const match = ua.match(/Mac OS X (\d+)[._](\d+)[._]?(\d+)?/);
+    if(match){
+      const major = parseInt(match[1]);
+      const minor = parseInt(match[2]);
+      const patch = match[3] ? parseInt(match[3]) : 0;
+      // macOS 10.15 = iPadOS 13, macOS 11 = iPadOS 14, etc.
+      let iPadOSVersion = major;
+      if(major === 10){
+        if(minor === 15) iPadOSVersion = 13;
+        else iPadOSVersion = minor + 1;
+      } else {
+        iPadOSVersion = major + 2;
+      }
+      os = `iPadOS ${iPadOSVersion}.${patch}`;
+    } else {
+      os = "iPadOS";
+    }
   } else if(/Android/.test(ua)){
     const match = ua.match(/Android (\d+\.?\d*)/);
     if(match) os = `Android ${match[1]}`;
@@ -760,6 +781,8 @@ function loadDeviceInfo(){
     else if(/iPhone16,1|iPhone16,2/.test(ua)) device = "iPhone 15 Pro";
     else device = "iPhone";
   } else if(/iPad/.test(ua)){
+    device = "iPad";
+  } else if(/Mac OS X/.test(ua) && navigator.maxTouchPoints > 1){
     device = "iPad";
   } else if(/Android/.test(ua)){
     const match = ua.match(/;\s*([^;)]+)\s+Build\//);
@@ -825,9 +848,9 @@ function loadSaved(){
     d.innerHTML=`
       <div>${s.t}</div>
       <div class="saved-actions">
-        <button onclick="createTab('${s.t.replace(/'/g,"\\'")}', \`${s.c.replace(/`/g,"\\`")}\`)">▶</button>
-        <button onclick="openModal(${i})">✏️</button>
-        <button onclick="del(${i})">🗑️</button>
+        <button onclick="createTab('${s.t.replace(/'/g,"\\'")}', \`${s.c.replace(/`/g,"\\`")}\`)"><img src="execute.png" alt="Execute"></button>
+        <button onclick="openModal(${i})"><img src="edit.png" alt="Edit"></button>
+        <button onclick="del(${i})"><img src="delete.png" alt="Delete"></button>
       </div>`;
     savedList.appendChild(d);
   });
