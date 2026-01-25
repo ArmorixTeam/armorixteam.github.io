@@ -235,14 +235,35 @@ textarea{
 }
 
 /* ================= ScriptBlox ================= */
+.search-container{
+  display:flex;
+  gap:10px;
+  margin-bottom:12px;
+  flex-shrink:0;
+}
 .search{
+  flex:1;
   padding:12px;
   border-radius:14px;
   border:1px solid var(--border);
   background:#0c0d15;
   color:#fff;
-  margin-bottom:12px;
-  flex-shrink:0;
+}
+.api-selector{
+  padding:12px 16px;
+  border-radius:14px;
+  border:1px solid var(--border);
+  background:#0c0d15;
+  color:#fff;
+  cursor:pointer;
+  font-family:Inter,system-ui;
+  font-size:14px;
+  font-weight:500;
+  transition:.25s;
+}
+.api-selector:hover{
+  background:var(--accentSoft);
+  border-color:var(--accent);
 }
 .results{
   flex:1;
@@ -556,7 +577,13 @@ print("Hello world")</textarea>
 
     <!-- ScriptBlox -->
     <div class="panel" id="blox">
-      <input class="search" id="search" placeholder="Search ScriptBlox">
+      <div class="search-container">
+        <input class="search" id="search" placeholder="Search scripts">
+        <select class="api-selector" id="apiSelector">
+          <option value="scriptblox">ScriptBlox</option>
+          <option value="rscripts">Rscripts</option>
+        </select>
+      </div>
       <div class="results" id="results"></div>
     </div>
 
@@ -641,6 +668,13 @@ print("Hello world")</textarea>
               <div class="credits-role">API & Script Database</div>
             </div>
           </div>
+          <div class="credits-item">
+            <div class="credits-icon">📜</div>
+            <div class="credits-info">
+              <div class="credits-name">Rscripts.net</div>
+              <div class="credits-role">API & Script Database</div>
+            </div>
+          </div>
         </div>
 
         <div class="credits-section">
@@ -660,7 +694,8 @@ print("Hello world")</textarea>
         </div>
 
         <div class="credits-footer">
-          Made with ❤️ for the Roblox community
+          Made with ❤️ for the Roblox community<br>
+          Powered by ScriptBlox & Rscripts.net
         </div>
       </div>
     </div>
@@ -986,33 +1021,75 @@ code.addEventListener("input",()=>{
 
 renderTabs();
 
-/* ===== ScriptBlox API + Overlay ===== */
+/* ===== Dual API Support (ScriptBlox + Rscripts) ===== */
 let sbPage=1,sbLoading=false,sbQuery="";
-const imgCache=new Map();
+let currentAPI = "scriptblox";
+const apiSelector = document.getElementById("apiSelector");
 let selectedScriptData=null;
+
+// API Selector Change
+apiSelector.onchange = ()=>{
+  currentAPI = apiSelector.value;
+  loadBlox(true);
+};
 
 async function loadBlox(reset=false){
   if(sbLoading) return;
   sbLoading=true;
   if(reset){ sbPage=1; results.innerHTML=""; }
+  
   try{
-    const r=await fetch(`https://scriptblox.com/api/script/search?q=${encodeURIComponent(sbQuery)}&page=${sbPage}&max=20`);
-    const j=await r.json();
-    const scripts = j?.result?.scripts || j?.scripts || [];
-    if(!scripts.length){ if(sbPage===1) results.innerHTML="<div style='opacity:.6'>No results</div>"; sbLoading=false; return; }
-    scripts.forEach(s=>{
-      const c=document.createElement("div");
-      c.className="card";
-      c.innerHTML=`<b>${s.title || "Untitled Script"}</b>`;
-      c.onclick=()=>{
-        selectedScriptData = s;
-        showBloxOverlay(s);
-      };
-      results.appendChild(c);
-    });
-    sbPage++;
-  }catch{ if(sbPage===1) results.innerHTML="<div style='opacity:.6'>Failed to load ScriptBlox</div>"; }
+    if(currentAPI === "scriptblox"){
+      await loadScriptBlox();
+    } else if(currentAPI === "rscripts"){
+      await loadRscripts();
+    }
+  }catch(e){ 
+    if(sbPage===1) results.innerHTML="<div style='opacity:.6'>Failed to load scripts</div>"; 
+  }
   sbLoading=false;
+}
+
+async function loadScriptBlox(){
+  const r=await fetch(`https://scriptblox.com/api/script/search?q=${encodeURIComponent(sbQuery)}&page=${sbPage}&max=20`);
+  const j=await r.json();
+  const scripts = j?.result?.scripts || j?.scripts || [];
+  if(!scripts.length){ 
+    if(sbPage===1) results.innerHTML="<div style='opacity:.6'>No results</div>"; 
+    return; 
+  }
+  scripts.forEach(s=>{
+    const c=document.createElement("div");
+    c.className="card";
+    c.innerHTML=`<b>${s.title || "Untitled Script"}</b>`;
+    c.onclick=()=>{
+      selectedScriptData = s;
+      showScriptBloxOverlay(s);
+    };
+    results.appendChild(c);
+  });
+  sbPage++;
+}
+
+async function loadRscripts(){
+  const r=await fetch(`https://api.rscripts.net/scripts?page=${sbPage}&q=${encodeURIComponent(sbQuery)}`);
+  const j=await r.json();
+  const scripts = j?.scripts || [];
+  if(!scripts.length){ 
+    if(sbPage===1) results.innerHTML="<div style='opacity:.6'>No results</div>"; 
+    return; 
+  }
+  scripts.forEach(s=>{
+    const c=document.createElement("div");
+    c.className="card";
+    c.innerHTML=`<b>${s.title || "Untitled Script"}</b>`;
+    c.onclick=()=>{
+      selectedScriptData = s;
+      showRscriptsOverlay(s);
+    };
+    results.appendChild(c);
+  });
+  sbPage++;
 }
 
 search.oninput=()=>{ sbQuery=search.value.trim(); loadBlox(true); };
@@ -1021,7 +1098,7 @@ results.onscroll=()=>{ if(results.scrollTop+results.clientHeight>=results.scroll
 const bloxModal=document.getElementById("bloxModal");
 const bloxOverlayContent=document.getElementById("bloxOverlayContent");
 
-function showBloxOverlay(s){
+function showScriptBloxOverlay(s){
   bloxOverlayContent.innerHTML="";
   bloxOverlayContent.style.maxHeight = "70vh";      
   bloxOverlayContent.style.overflowY = "auto";
@@ -1094,12 +1171,79 @@ function showBloxOverlay(s){
   bloxModal.classList.add("active");
 }
 
+function showRscriptsOverlay(s){
+  bloxOverlayContent.innerHTML="";
+  bloxOverlayContent.style.maxHeight = "70vh";      
+  bloxOverlayContent.style.overflowY = "auto";
+
+  if(s.image){
+    const img=new Image();
+    img.src=s.image;
+    bloxOverlayContent.appendChild(img);
+  }
+
+  const title=document.createElement("b");
+  title.textContent = s.title || "Untitled Script";
+  bloxOverlayContent.appendChild(title);
+
+  const game=document.createElement("p");
+  game.textContent = "Game: " + (s.game?.name || "Unknown");
+  bloxOverlayContent.appendChild(game);
+
+  const verified=document.createElement("p");
+  verified.textContent = "Verified: " + (s.verified ? "Yes" : "No");
+  bloxOverlayContent.appendChild(verified);
+
+  if(s.description){
+    const desc=document.createElement("p");
+    desc.textContent = s.description;
+    bloxOverlayContent.appendChild(desc);
+  }
+
+  const codeEl=document.createElement("textarea");
+  codeEl.rows=6;
+  codeEl.readOnly=true;
+  codeEl.style.width="100%";
+  codeEl.value = s.script || "";
+  bloxOverlayContent.appendChild(codeEl);
+
+  const actions=document.createElement("div");
+  actions.className="overlay-actions";
+
+  const loadBtn=document.createElement("button");
+  loadBtn.textContent="Load in script editor";
+  loadBtn.onclick=()=>{
+    createTab(s.title||"Untitled Script", s.script||"");
+    bloxModal.classList.remove("active");
+  };
+
+  const saveBtn=document.createElement("button");
+  saveBtn.textContent="Load in saved scripts";
+  saveBtn.onclick=()=>{
+    if(!savedData.scripts) savedData.scripts = [];
+    savedData.scripts.push({t:s.title||"Untitled Script", c:s.script||""});
+    loadSaved();
+    bloxModal.classList.remove("active");
+  };
+
+  const copyBtn=document.createElement("button");
+  copyBtn.textContent="Copy to clipboard";
+  copyBtn.onclick=()=>{
+    navigator.clipboard.writeText(s.script||"");
+    bloxModal.classList.remove("active");
+  };
+
+  actions.appendChild(loadBtn);
+  actions.appendChild(saveBtn);
+  actions.appendChild(copyBtn);
+  bloxOverlayContent.appendChild(actions);
+
+  bloxModal.classList.add("active");
+}
+
 /* ===== Tab Creation Function ===== */
 function createTab(title, content){
   const idx = tabsData.length;
-  tabsData.push({title, content});
-  renderTabs();
-  setActiveTab(idx);
 }
 </script>
 
