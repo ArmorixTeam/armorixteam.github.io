@@ -773,28 +773,21 @@ document.querySelectorAll(".nav-btn").forEach(b=>{
 function loadDeviceInfo(){
   const ua = navigator.userAgent;
   
-  // Detect OS and version
+  // Detect OS and version - FIXED iOS DETECTION
   let os = "Unknown OS";
   if(/iPhone|iPad|iPod/.test(ua)){
+    // Check for actual iOS version in the UA string
     const match = ua.match(/OS (\d+)_(\d+)_?(\d+)?/);
-    if(match) os = `iOS ${match[1]}.${match[2]}${match[3] ? '.' + match[3] : ''}`;
-    else os = "iOS (Unknown Version)";
+    if(match) {
+      os = `iOS ${match[1]}.${match[2]}${match[3] ? '.' + match[3] : ''}`;
+    } else {
+      os = "iOS (Unknown Version)";
+    }
   } else if(/Mac OS X/.test(ua) && navigator.maxTouchPoints > 1){
-    // iPad pretending to be macOS (iPadOS 13+)
-    const match = ua.match(/Mac OS X (\d+)[._](\d+)[._]?(\d+)?/);
+    // iPad on iPadOS 13+ reports as macOS
+    const match = ua.match(/Version\/(\d+)\.(\d+)/);
     if(match){
-      const major = parseInt(match[1]);
-      const minor = parseInt(match[2]);
-      const patch = match[3] ? parseInt(match[3]) : 0;
-      // macOS 10.15 = iPadOS 13, macOS 11 = iPadOS 14, etc.
-      let iPadOSVersion = major;
-      if(major === 10){
-        if(minor === 15) iPadOSVersion = 13;
-        else iPadOSVersion = minor + 1;
-      } else {
-        iPadOSVersion = major + 2;
-      }
-      os = `iPadOS ${iPadOSVersion}.${patch}`;
+      os = `iPadOS ${match[1]}.${match[2]}`;
     } else {
       os = "iPadOS";
     }
@@ -1045,6 +1038,7 @@ async function loadBlox(reset=false){
       await loadRscripts();
     }
   }catch(e){ 
+    console.error("API Error:", e);
     if(sbPage===1) results.innerHTML="<div style='opacity:.6'>Failed to load scripts</div>"; 
   }
   sbLoading=false;
@@ -1072,8 +1066,13 @@ async function loadScriptBlox(){
 }
 
 async function loadRscripts(){
-  const r=await fetch(`https://api.rscripts.net/scripts?page=${sbPage}&q=${encodeURIComponent(sbQuery)}`);
-  const j=await r.json();
+  const params = new URLSearchParams();
+  params.append('page', sbPage);
+  if(sbQuery) params.append('q', sbQuery);
+  
+  const r = await fetch(`https://api.rscripts.net/scripts?${params.toString()}`);
+  if(!r.ok) throw new Error(`HTTP ${r.status}`);
+  const j = await r.json();
   const scripts = j?.scripts || [];
   if(!scripts.length){ 
     if(sbPage===1) results.innerHTML="<div style='opacity:.6'>No results</div>"; 
@@ -1143,7 +1142,9 @@ function showScriptBloxOverlay(s){
   const loadBtn=document.createElement("button");
   loadBtn.textContent="Load in script editor";
   loadBtn.onclick=()=>{
-    createTab(s.title||"Untitled Script", s.script||"");
+    const scriptTitle = s.title || "Untitled Script";
+    const scriptContent = s.script || "";
+    createTab(scriptTitle, scriptContent);
     bloxModal.classList.remove("active");
   };
 
@@ -1213,7 +1214,9 @@ function showRscriptsOverlay(s){
   const loadBtn=document.createElement("button");
   loadBtn.textContent="Load in script editor";
   loadBtn.onclick=()=>{
-    createTab(s.title||"Untitled Script", s.script||"");
+    const scriptTitle = s.title || "Untitled Script";
+    const scriptContent = s.script || "";
+    createTab(scriptTitle, scriptContent);
     bloxModal.classList.remove("active");
   };
 
@@ -1244,6 +1247,9 @@ function showRscriptsOverlay(s){
 /* ===== Tab Creation Function ===== */
 function createTab(title, content){
   const idx = tabsData.length;
+  tabsData.push({title, content});
+  renderTabs();
+  setActiveTab(idx);
 }
 </script>
 
