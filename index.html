@@ -773,21 +773,31 @@ document.querySelectorAll(".nav-btn").forEach(b=>{
 function loadDeviceInfo(){
   const ua = navigator.userAgent;
   
-  // Detect OS and version - FIXED iOS DETECTION
+  // Detect OS and version - IMPROVED iOS DETECTION
   let os = "Unknown OS";
   if(/iPhone|iPad|iPod/.test(ua)){
     // Check for actual iOS version in the UA string
     const match = ua.match(/OS (\d+)_(\d+)_?(\d+)?/);
     if(match) {
-      os = `iOS ${match[1]}.${match[2]}${match[3] ? '.' + match[3] : ''}`;
+      const major = match[1];
+      const minor = match[2];
+      const patch = match[3] || '0';
+      os = `iOS ${major}.${minor}.${patch}`;
     } else {
       os = "iOS (Unknown Version)";
     }
   } else if(/Mac OS X/.test(ua) && navigator.maxTouchPoints > 1){
-    // iPad on iPadOS 13+ reports as macOS
-    const match = ua.match(/Version\/(\d+)\.(\d+)/);
-    if(match){
-      os = `iPadOS ${match[1]}.${match[2]}`;
+    // iPad on iPadOS 13+ reports as macOS - extract from Version/
+    const versionMatch = ua.match(/Version\/(\d+)\.(\d+)\.?(\d+)?/);
+    const osMatch = ua.match(/OS (\d+)_(\d+)_?(\d+)?/);
+    
+    if(osMatch){
+      const major = osMatch[1];
+      const minor = osMatch[2];
+      const patch = osMatch[3] || '0';
+      os = `iPadOS ${major}.${minor}.${patch}`;
+    } else if(versionMatch){
+      os = `iPadOS ${versionMatch[1]}.${versionMatch[2]}${versionMatch[3] ? '.' + versionMatch[3] : ''}`;
     } else {
       os = "iPadOS";
     }
@@ -808,14 +818,29 @@ function loadDeviceInfo(){
     os = "Linux";
   }
   
-  // Detect device model
+  // Detect device model with iPad generation detection
   let device = "Unknown Device";
   if(/iPhone/.test(ua)){
     if(/iPhone15,2|iPhone15,3/.test(ua)) device = "iPhone 14 Pro";
     else if(/iPhone16,1|iPhone16,2/.test(ua)) device = "iPhone 15 Pro";
     else device = "iPhone";
   } else if(/iPad/.test(ua)){
-    device = "iPad";
+    // Try to detect iPad generation from model identifier
+    if(/iPad8,1|iPad8,2|iPad8,3|iPad8,4/.test(ua)) device = "iPad Pro 11-inch (3rd gen)";
+    else if(/iPad8,5|iPad8,6|iPad8,7|iPad8,8/.test(ua)) device = "iPad Pro 12.9-inch (3rd gen)";
+    else if(/iPad8,9|iPad8,10/.test(ua)) device = "iPad Pro 11-inch (4th gen)";
+    else if(/iPad8,11|iPad8,12/.test(ua)) device = "iPad Pro 12.9-inch (5th gen)";
+    else if(/iPad11,1|iPad11,2/.test(ua)) device = "iPad mini (5th gen)";
+    else if(/iPad11,3|iPad11,4/.test(ua)) device = "iPad Air (3rd gen)";
+    else if(/iPad11,6|iPad11,7/.test(ua)) device = "iPad (8th gen)";
+    else if(/iPad12,1|iPad12,2/.test(ua)) device = "iPad (9th gen)";
+    else if(/iPad13,1|iPad13,2/.test(ua)) device = "iPad Air (4th gen)";
+    else if(/iPad13,4|iPad13,5|iPad13,6|iPad13,7/.test(ua)) device = "iPad Pro 11-inch (5th gen)";
+    else if(/iPad13,8|iPad13,9|iPad13,10|iPad13,11/.test(ua)) device = "iPad Pro 12.9-inch (6th gen)";
+    else if(/iPad14,1|iPad14,2/.test(ua)) device = "iPad mini (6th gen)";
+    else if(/iPad13,16|iPad13,17/.test(ua)) device = "iPad Air (5th gen)";
+    else if(/iPad13,18|iPad13,19/.test(ua)) device = "iPad (10th gen)";
+    else device = "iPad";
   } else if(/Mac OS X/.test(ua) && navigator.maxTouchPoints > 1){
     device = "iPad";
   } else if(/Android/.test(ua)){
@@ -1068,9 +1093,11 @@ async function loadScriptBlox(){
 async function loadRscripts(){
   const params = new URLSearchParams();
   params.append('page', sbPage);
+  params.append('orderBy', 'date');
+  params.append('sort', 'desc');
   if(sbQuery) params.append('q', sbQuery);
   
-  const r = await fetch(`https://api.rscripts.net/scripts?${params.toString()}`);
+  const r = await fetch(`https://rscripts.net/api/v2/scripts?${params.toString()}`);
   if(!r.ok) throw new Error(`HTTP ${r.status}`);
   const j = await r.json();
   const scripts = j?.scripts || [];
@@ -1082,7 +1109,18 @@ async function loadRscripts(){
     const c=document.createElement("div");
     c.className="card";
     c.innerHTML=`<b>${s.title || "Untitled Script"}</b>`;
-    c.onclick=()=>{
+    c.onclick=async ()=>{
+      // Fetch the actual script content from rawScript URL
+      if(s.rawScript){
+        try{
+          const scriptRes = await fetch(s.rawScript);
+          const scriptContent = await scriptRes.text();
+          s.script = scriptContent;
+        }catch(e){
+          console.error("Failed to fetch script content:", e);
+          s.script = "";
+        }
+      }
       selectedScriptData = s;
       showRscriptsOverlay(s);
     };
