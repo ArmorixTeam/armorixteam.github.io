@@ -1109,8 +1109,20 @@ async function loadRscripts(){
     const c=document.createElement("div");
     c.className="card";
     c.innerHTML=`<b>${s.title || "Untitled Script"}</b>`;
-    c.onclick=()=>{
+    c.onclick=async ()=>{
       selectedScriptData = s;
+      // Fetch full script details using the individual script endpoint
+      if(s._id){
+        try{
+          const scriptRes = await fetch(`https://rscripts.net/api/v2/script?id=${s._id}`);
+          const scriptData = await scriptRes.json();
+          if(scriptData.success && scriptData.success[0]){
+            s.fullData = scriptData.success[0];
+          }
+        }catch(e){
+          console.error("Failed to fetch full script data:", e);
+        }
+      }
       showRscriptsOverlay(s);
     };
     results.appendChild(c);
@@ -1233,28 +1245,39 @@ function showRscriptsOverlay(s){
   codeEl.readOnly=true;
   codeEl.style.width="100%";
   
-  // Show loading message while fetching script
-  if(!s.script){
+  // Try to get script from fullData first, then try rawScript
+  let scriptContent = "";
+  if(s.fullData && s.fullData.script){
+    scriptContent = s.fullData.script;
+    codeEl.value = scriptContent;
+    s.script = scriptContent;
+  } else if(s.rawScript){
     codeEl.value = "Loading script...";
-    bloxOverlayContent.appendChild(codeEl);
-    
-    // Fetch the script content
-    if(s.rawScript){
-      fetch(s.rawScript)
-        .then(res => res.text())
-        .then(scriptContent => {
-          s.script = scriptContent;
-          codeEl.value = scriptContent;
-        })
-        .catch(e => {
-          console.error("Failed to fetch script:", e);
-          codeEl.value = "Failed to load script content.";
-        });
-    } else {
-      codeEl.value = "No script available.";
-    }
+    // Try to fetch via CORS proxy or direct
+    fetch(s.rawScript)
+      .then(res => res.text())
+      .then(content => {
+        scriptContent = content;
+        s.script = content;
+        codeEl.value = content;
+      })
+      .catch(e => {
+        console.error("Failed to fetch rawScript:", e);
+        // If rawScript fails, try using a CORS proxy as fallback
+        fetch(`https://corsproxy.io/?${encodeURIComponent(s.rawScript)}`)
+          .then(res => res.text())
+          .then(content => {
+            scriptContent = content;
+            s.script = content;
+            codeEl.value = content;
+          })
+          .catch(e2 => {
+            console.error("CORS proxy also failed:", e2);
+            codeEl.value = "Failed to load script content. The script may not be available via CORS.";
+          });
+      });
   } else {
-    codeEl.value = s.script;
+    codeEl.value = "No script available.";
   }
   
   bloxOverlayContent.appendChild(codeEl);
@@ -1267,11 +1290,11 @@ function showRscriptsOverlay(s){
   loadBtn.onclick=()=>{
     const scriptTitle = s.title || "Untitled Script";
     const scriptContent = s.script || "";
-    if(scriptContent){
+    if(scriptContent && scriptContent !== "Loading script..." && !scriptContent.includes("Failed to load")){
       createTab(scriptTitle, scriptContent);
       bloxModal.classList.remove("active");
     } else {
-      alert("Script content is still loading. Please wait a moment.");
+      alert("Script content is not available yet. Please wait or try again.");
     }
   };
 
@@ -1279,13 +1302,13 @@ function showRscriptsOverlay(s){
   saveBtn.textContent="Load in saved scripts";
   saveBtn.onclick=()=>{
     const scriptContent = s.script || "";
-    if(scriptContent){
+    if(scriptContent && scriptContent !== "Loading script..." && !scriptContent.includes("Failed to load")){
       if(!savedData.scripts) savedData.scripts = [];
       savedData.scripts.push({t:s.title||"Untitled Script", c:scriptContent});
       loadSaved();
       bloxModal.classList.remove("active");
     } else {
-      alert("Script content is still loading. Please wait a moment.");
+      alert("Script content is not available yet. Please wait or try again.");
     }
   };
 
@@ -1293,11 +1316,11 @@ function showRscriptsOverlay(s){
   copyBtn.textContent="Copy to clipboard";
   copyBtn.onclick=()=>{
     const scriptContent = s.script || "";
-    if(scriptContent){
+    if(scriptContent && scriptContent !== "Loading script..." && !scriptContent.includes("Failed to load")){
       navigator.clipboard.writeText(scriptContent);
       bloxModal.classList.remove("active");
     } else {
-      alert("Script content is still loading. Please wait a moment.");
+      alert("Script content is not available yet. Please wait or try again.");
     }
   };
 
