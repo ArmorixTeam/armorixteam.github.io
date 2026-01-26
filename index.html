@@ -1109,18 +1109,7 @@ async function loadRscripts(){
     const c=document.createElement("div");
     c.className="card";
     c.innerHTML=`<b>${s.title || "Untitled Script"}</b>`;
-    c.onclick=async ()=>{
-      // Fetch the actual script content from rawScript URL
-      if(s.rawScript){
-        try{
-          const scriptRes = await fetch(s.rawScript);
-          const scriptContent = await scriptRes.text();
-          s.script = scriptContent;
-        }catch(e){
-          console.error("Failed to fetch script content:", e);
-          s.script = "";
-        }
-      }
+    c.onclick=()=>{
       selectedScriptData = s;
       showRscriptsOverlay(s);
     };
@@ -1230,7 +1219,7 @@ function showRscriptsOverlay(s){
   bloxOverlayContent.appendChild(game);
 
   const verified=document.createElement("p");
-  verified.textContent = "Verified: " + (s.verified ? "Yes" : "No");
+  verified.textContent = "Verified: " + (s.isVerified ? "Yes" : "No");
   bloxOverlayContent.appendChild(verified);
 
   if(s.description){
@@ -1243,7 +1232,31 @@ function showRscriptsOverlay(s){
   codeEl.rows=6;
   codeEl.readOnly=true;
   codeEl.style.width="100%";
-  codeEl.value = s.script || "";
+  
+  // Show loading message while fetching script
+  if(!s.script){
+    codeEl.value = "Loading script...";
+    bloxOverlayContent.appendChild(codeEl);
+    
+    // Fetch the script content
+    if(s.rawScript){
+      fetch(s.rawScript)
+        .then(res => res.text())
+        .then(scriptContent => {
+          s.script = scriptContent;
+          codeEl.value = scriptContent;
+        })
+        .catch(e => {
+          console.error("Failed to fetch script:", e);
+          codeEl.value = "Failed to load script content.";
+        });
+    } else {
+      codeEl.value = "No script available.";
+    }
+  } else {
+    codeEl.value = s.script;
+  }
+  
   bloxOverlayContent.appendChild(codeEl);
 
   const actions=document.createElement("div");
@@ -1254,24 +1267,38 @@ function showRscriptsOverlay(s){
   loadBtn.onclick=()=>{
     const scriptTitle = s.title || "Untitled Script";
     const scriptContent = s.script || "";
-    createTab(scriptTitle, scriptContent);
-    bloxModal.classList.remove("active");
+    if(scriptContent){
+      createTab(scriptTitle, scriptContent);
+      bloxModal.classList.remove("active");
+    } else {
+      alert("Script content is still loading. Please wait a moment.");
+    }
   };
 
   const saveBtn=document.createElement("button");
   saveBtn.textContent="Load in saved scripts";
   saveBtn.onclick=()=>{
-    if(!savedData.scripts) savedData.scripts = [];
-    savedData.scripts.push({t:s.title||"Untitled Script", c:s.script||""});
-    loadSaved();
-    bloxModal.classList.remove("active");
+    const scriptContent = s.script || "";
+    if(scriptContent){
+      if(!savedData.scripts) savedData.scripts = [];
+      savedData.scripts.push({t:s.title||"Untitled Script", c:scriptContent});
+      loadSaved();
+      bloxModal.classList.remove("active");
+    } else {
+      alert("Script content is still loading. Please wait a moment.");
+    }
   };
 
   const copyBtn=document.createElement("button");
   copyBtn.textContent="Copy to clipboard";
   copyBtn.onclick=()=>{
-    navigator.clipboard.writeText(s.script||"");
-    bloxModal.classList.remove("active");
+    const scriptContent = s.script || "";
+    if(scriptContent){
+      navigator.clipboard.writeText(scriptContent);
+      bloxModal.classList.remove("active");
+    } else {
+      alert("Script content is still loading. Please wait a moment.");
+    }
   };
 
   actions.appendChild(loadBtn);
